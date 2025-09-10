@@ -7,10 +7,10 @@ class Payment:
         self.value = None
         self.dateTime = datetime.datetime.now()
 
-        def isinstance(type, TypePayment):
+        if isinstance(type, TypePayment):
             self.type = type
 
-        def isinstance(value, float):
+        if isinstance(value, float):
             self.value = float(value)
 
     @property
