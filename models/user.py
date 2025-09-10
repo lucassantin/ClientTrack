@@ -3,10 +3,10 @@ class User:
         self.name = None
         self.contact = None
 
-        def isinstance(name, str):
+        if isinstance(name, str):
             self.name = name
 
-        def isinstance(contact, str):
+        if isinstance(contact, str):
             self.contact = contact
 
     @property
