@@ -3,10 +3,10 @@ class Insight:
         self.indice = None
         self.recommendation = None
 
-        def isinstance(indice, int):
+        if isinstance(indice, int):
             self.indice = indice
 
-        def isinstance(recommendation, str):
+        if isinstance(recommendation, str):
             self.recommendation = recommendation
 
     @property
