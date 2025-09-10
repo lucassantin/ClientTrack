@@ -2,7 +2,7 @@ class TypePayment:
     def __init__(self, name: str):
         self.name = None
 
-        def isinstance(name, str):
+        if isinstance(name, str):
             self.name = name
 
     @property
