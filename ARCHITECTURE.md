@@ -19,7 +19,7 @@ ClientTrack/
 │   ├── appointment.py
 │   ├── client.py
 │   ├── employee.py
-│   ├── especiality.py
+│   ├── specialty.py
 │   ├── insight.py
 │   ├── payment.py
 │   ├── service.py
