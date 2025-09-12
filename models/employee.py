@@ -1,23 +1,23 @@
 from user import User
-from especiality import Especiality
+from models.speciality import Specialty
 
 class Employee(User):
-    def __init__(self, name: str, contact: str, especiality: Especiality):
+    def __init__(self, name: str, contact: str, specialty: Specialty):
         super().__init__(name, contact)
 
-        self.__especiality = None
+        self.__specialty = None
 
-        if isinstance(especiality, Especiality):
-            self.__especiality = especiality
+        if isinstance(specialty, Specialty):
+            self.__specialty = specialty
 
 
     @property
-    def especiality(self) -> Especiality:
-        return self.__especiality
+    def specialty(self) -> Specialty:
+        return self.__specialty
 
-    @especiality.setter
-    def especiality(self, especiality: Especiality):
-        if isinstance(especiality, Especiality):
-            self.__especiality = especiality
+    @specialty.setter
+    def specialty(self, specialty: Specialty):
+        if isinstance(specialty, Specialty):
+            self.__specialty = specialty
         else:
-            raise TypeError("Especiality must be an instance of Especiality")
+            raise TypeError("Specialty must be an instance of Specialty")
