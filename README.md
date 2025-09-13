@@ -1,2 +1,5 @@
 # ClientTrack
-Project to dsoo
+
+run the following command to generate your venv folder
+
+python -m venv venv
