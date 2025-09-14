@@ -1,5 +1,5 @@
 from user import User
-from models.speciality import Specialty
+from models.specialty import Specialty
 
 class Employee(User):
     def __init__(self, name: str, contact: str, specialty: Specialty):

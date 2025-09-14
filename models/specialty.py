@@ -1,4 +1,4 @@
-class Speciality:
+class Specialty:
     def __init__(self, name, description):
         self.__name = None
         self.__description = None

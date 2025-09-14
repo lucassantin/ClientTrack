@@ -1,5 +1,5 @@
 from models.employee import Employee
-from models.speciality import Specialty
+from models.specialty import Specialty
 
 class UsersView:
     """View for user-related operations."""
