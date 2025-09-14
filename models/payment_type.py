@@ -1,4 +1,4 @@
-class TypePayment:
+class PaymentType:
     def __init__(self, name: str):
         self.name = None
 
