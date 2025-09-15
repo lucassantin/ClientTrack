@@ -1,15 +1,29 @@
-from user import User
+from models.user import User
 from models.specialty import Specialty
 
+
 class Employee(User):
-    def __init__(self, name: str, contact: str, specialty: Specialty):
+    def __init__(self, name: str, contact: str, specialty: Specialty, employee_id: int = None):
         super().__init__(name, contact)
 
+        self._employee_id = None
         self.__specialty = None
+
+        if isinstance(employee_id, int):
+            self._employee_id = employee_id
 
         if isinstance(specialty, Specialty):
             self.__specialty = specialty
 
+
+    @property
+    def employee_id(self):
+        return self._employee_id
+    
+    @employee_id.setter
+    def employee_id(self, employee_id: int):
+        if isinstance(employee_id, int):
+            self._employee_id = employee_id
 
     @property
     def specialty(self) -> Specialty:
