@@ -1,9 +1,10 @@
 import sqlite3
 import os
 
+
 def initialize_database():
     DB_NAME = "clienttrack.db"
-    SCHEMA_DIR = "schema"
+    SCHEMA_DIR = "data/schema"
 
     try:
         with sqlite3.connect(DB_NAME) as conn:
