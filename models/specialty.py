@@ -1,13 +1,26 @@
 class Specialty:
-    def __init__(self, name, description):
+    def __init__(self, name:str, description:str, specialty_id:int=None):
+        self._specialty_id = None
         self.__name = None
         self.__description = None
+
+        if isinstance(specialty_id, int):
+            self._specialty_id = specialty_id
 
         if isinstance(name, str):
             self.__name = name
 
         if isinstance(description, str):
             self.__description = description
+
+    @property
+    def specialty_id(self):
+        return self._specialty_id
+    
+    @specialty_id.setter
+    def specialty_id(self, specialty_id: int):
+        if isinstance(specialty_id,int):
+            self._specialty_id = specialty_id
 
 
     @property
