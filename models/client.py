@@ -1,26 +1,39 @@
-from user import User
-from insight import Insight
-from appointment import Appointment
+from models.user import User
+from models.insight import Insight
+from models.appointment import Appointment
 import datetime
 class Client(User):
-    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str):
-        super().__init__(name, contact)
+    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, user_id:int =None, id:int = None):
+        super().__init__(name, contact, user_id=user_id)
 
-        self.birthDay = None
-        self.insight = None
-        self.register = []
-        self.accumulatedIndice = 0
+        self._id = None
+        self._birthDay = None
+        self._insight = None
+        self._register = []
+        self._accumulatedIndice = 0
+
+        if isinstance(id, int):
+            self._id = id
 
         if isinstance(birthDay, str):
             try:
                 datetime.datetime.strptime(birthDay, "%Y-%m-%d")
-                self.birthDay = birthDay
+                self._birthDay = birthDay
             except ValueError:
                 raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
 
         if isinstance(indice, int) and isinstance(recommendation, str):
-            self.insight = Insight(indice, recommendation)
+            self._insight = Insight(indice, recommendation)
 
+
+    @property
+    def id(self) -> int:
+        return self._id
+    
+    @id.setter
+    def id(self, id:int):
+        if isinstance(id, int):
+            self._id = id
 
     @property
     def birthDay(self) -> str:
@@ -62,17 +75,17 @@ class Client(User):
         
     @property
     def accumulatedIndice(self) -> int:
-        return self.accumulatedIndice
+        return self._accumulatedIndice
     
     def incremmententIndice(self) -> None:
-        self.accumulatedIndice += 1
+        self._accumulatedIndice += 1
 
     def isAvailableInsight(self) -> bool:
-        return self.accumulatedIndice >= self.insight.indice
+        return self._accumulatedIndice >= self.insight.indice
     
     def givenInsight(self) -> str:
         if self.isAvailableInsight():
-            self.accumulatedIndice -= self.insight.indice
+            self._accumulatedIndice -= self.insight.indice
             return self.insight.recommendation
         else:
             return "Not enough accumulated indice to receive insight."
