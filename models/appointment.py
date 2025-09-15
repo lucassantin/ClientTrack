@@ -1,7 +1,7 @@
 import datetime
-from service import Service
-from employee import Employee
-from payment import Payment
+from models.service import Service
+from models.employee import Employee
+from models.payment import Payment
 
 class Appointment:
     def __init__(self, appointment_date: str,service: Service, employee: Employee, payment: Payment):
