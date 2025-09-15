@@ -1,13 +1,26 @@
 class Insight:
-    def __init__(self, indice: int, recommendation: str):
-        self.indice = None
-        self.recommendation = None
+    def __init__(self, indice: int, recommendation: str, id: int = None):
+        self._id = None
+        self._indice = None
+        self._recommendation = None
+        
+        if isinstance(id,int):
+            self._id = id
 
         if isinstance(indice, int):
-            self.indice = indice
+            self._indice = indice
 
         if isinstance(recommendation, str):
-            self.recommendation = recommendation
+            self._recommendation = recommendation
+
+    @property
+    def id(self) -> int:
+        return self._id
+    
+    @id.setter
+    def id(self, id: int):
+        if isinstance(id, int):
+            self._id = id
 
     @property
     def indice(self) -> int:
@@ -30,3 +43,4 @@ class Insight:
             self._recommendation = recommendation
         else:
             raise TypeError("Recommendation must be a string")
+        
