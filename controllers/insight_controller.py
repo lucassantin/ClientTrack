@@ -13,9 +13,9 @@ class InsightController:
                 cursor = conn.cursor()
                 cursor.execute(sql, data_tuple)
                 conn.commit()
-                return True, cursor.lastrowid
+                return cursor.lastrowid, None
         except sqlite3.Error as e:
-            return False, e
+            return None, e
         
     def get_all(self):
         sql = "select id, indice, recommendation from insights"
