@@ -9,10 +9,10 @@ class insightView:
         recommendation = input("Recommendation:")
         insight = Insight(indice=indice, recommendation=recommendation)
         result, content = self.controller.add(insight=insight)
-        if result is True:
+        if result:
             print("Insight created successfully.")
         else:
-            print(f"Error to create a insight: {content.e}")
+            print(f"Error to create a insight: {content}")
     def read(self): ...
     def update(self): ...
     def delete(self, id: int): ...
