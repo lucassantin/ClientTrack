@@ -54,8 +54,7 @@ class ClientController:
                     ) for row in rows
                 ]
                 
-                return clients
+                return clients, None
                 
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return []
+            return [], e
