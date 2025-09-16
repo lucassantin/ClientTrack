@@ -1,4 +1,6 @@
-class User:
+from abc import ABC
+
+class User: #Change to be abstract (ABC)
     def __init__(self, name: str, contact: str, user_id: int = None):
         self._user_id = None
         self._name = None
