@@ -13,7 +13,7 @@ class ClientController:
                 cursor.execute(sql, data_tuple)
                 conn.commit()
                 print(f"Client {client.name} added successfully")
-                return True
+                return cursor.lastrowid
         except sqlite3.Error as e:
             print(f"Error adding client {client.name}: {e}")
             return False
