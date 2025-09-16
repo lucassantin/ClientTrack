@@ -57,10 +57,12 @@ class clientView:
         name = input("Name:")
         contact = input("Contact:")
         user = User(name=name, contact=contact)
-        user_id = UserController().add(user)
+        user_id, status = UserController().add(user)
         if not user_id: 
-            print("Failed to create user.")
-            return
+            return print("Failed to create user: {status}.")
+        else:
+            user.user_id = user_id
+        
 
         birthday = input("Birthday (YYYY-MM-DD):")
 
@@ -68,10 +70,9 @@ class clientView:
         indice = int(input("Indice:"))
         recommendation = input("Recommendation:")
         insight = Insight(indice=indice, recommendation=recommendation)
-        insight_id = InsightController().add(insight=insight)
-        if not insight_id:
-            print("Error to create insight")
-            return
+        insight_id, status = InsightController().add(insight=insight)
+        if status:
+            return print(f"Error to create a insight: {status}")
         
         client = Client(
             name=name, 
@@ -88,7 +89,7 @@ class clientView:
 
     def get_all(self):
         all_clients, status = self.controller.get_all()
-
+        print(all_clients, status)
         if status:
             print(f"Database error: {status}")
         elif all_clients:
