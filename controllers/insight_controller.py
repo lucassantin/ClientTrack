@@ -13,11 +13,9 @@ class InsightController:
                 cursor = conn.cursor()
                 cursor.execute(sql, data_tuple)
                 conn.commit()
-                print(f'Insight added successfully')
-                return cursor.lastrowid
+                return True, cursor.lastrowid
         except sqlite3.Error as e:
-            print(f"Error adding insight: {e}")
-            return False
+            return False, e
         
     def get_all(self):
         sql = "select id, indice, recommendation from insights"
@@ -32,10 +30,9 @@ class InsightController:
 
                 insights = [Insight(id=row["id"], indice=row["indice"], recommendation=row["recommendation"]) for row in rows]
 
-                return insights
+                return insights, None
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return []
+            return [], e
         
     def get(self, indice:int, recommendation: str):
         sql = 'select * from insights where indice = ? and recommendation = ?'
@@ -52,5 +49,4 @@ class InsightController:
                 else:
                     return None
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return None
+            return e
