@@ -17,9 +17,9 @@ class EspecialityController:
 
                 rows = cursor.fetchall()
 
-                specialties, None = [Specialty(specialty_id=row["id"], name=row["name"], description=row["description"]) for row in rows]
+                specialties = [Specialty(specialty_id=row["id"], name=row["name"], description=row["description"]) for row in rows]
 
-                return specialties
+                return specialties, None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return [], e   
