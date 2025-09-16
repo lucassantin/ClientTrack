@@ -15,19 +15,21 @@ class employeeView:
 
     def create(self):
         """Create a new employee."""
-        especialites = EspecialityController().get_all()
-        if  especialites == []: 
-            return print("Please, before proceeding create a specialty\n")     
+        especialites, status = EspecialityController().get_all()
 
-        name = input("Name:")
-        contact = input("Contact:")
-
-        print()
-        print("-----Especialites-----")
-        print()
-        for especialty in especialites:
-            print(f"ID: {especialty.specialty_id}, Name: {especialty.name}, Description: {especialty.description}")
-        print()
+        if status:
+            return print(f"Error: {status}")
+        elif not especialites:
+            return print("Especialites not found in database, create one before.")
+        else:
+            name = input("Name:")
+            contact = input("Contact:")
+            print()
+            print("-----Especialites-----")
+            print()
+            for especialty in especialites:
+                print(f"ID: {especialty.specialty_id}, Name: {especialty.name}, Description: {especialty.description}")
+            print()
 
         specialty = int(input("Specialty(id):"))
         
@@ -37,7 +39,11 @@ class employeeView:
                 break
 
         employee = Employee(name=name, contact=contact, specialty=specialty_obj)
-        self.controller.add(employee=employee)
+        employee_id, status = self.controller.add(employee=employee)
+        if status is True:
+            print(f"Employee {employee.name} added successfully")
+        else:
+            print(f"Error adding employee: {status}")
 
     def read(self): ...
     def update(self): ...
@@ -81,9 +87,11 @@ class clientView:
 
 
     def get_all(self):
-        all_clients = self.controller.get_all()
+        all_clients, status = self.controller.get_all()
 
-        if all_clients:
+        if status:
+            print(f"Database error: {status}")
+        elif all_clients:
             print("\n-----All clients-----")
             print()
             for client in all_clients:
@@ -91,3 +99,5 @@ class clientView:
             print()
         else:
             print("\nNo clients found in the database")
+        
+            
