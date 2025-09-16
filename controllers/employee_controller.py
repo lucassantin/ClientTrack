@@ -13,10 +13,8 @@ class EmployeeController:
                 cursor = conn.cursor()
                 cursor.execute(sql,data_tuple)
                 conn.commit()
-                print(f"Employee {employee.name} added successfully")
-                return True
+                return cursor.lastrowid, True
         except sqlite3.Error as e:
-            print(f"Error adding employee: {e}")
-            return False
+            return False, e
 
     def get_all(self): ...
