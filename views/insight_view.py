@@ -8,19 +8,26 @@ class insightView:
         indice = int(input("Indice:"))
         recommendation = input("Recommendation:")
         insight = Insight(indice=indice, recommendation=recommendation)
-        self.controller.add(insight=insight)
+        result, content = self.controller.add(insight=insight)
+        if result is True:
+            print("Insight created successfully.")
+        else:
+            print(f"Error to create a insight: {content.e}")
     def read(self): ...
     def update(self): ...
     def delete(self, id: int): ...
     
     def get_all(self):
-        all_insights = self.controller.get_all()
+        all_insights, error = self.controller.get_all()
 
-        if all_insights:
+        if error:
+            print(f"Error: {error}")
+        elif not all_insights:
+            print("\nNo insights found in the database.")
+        else:
             print("\n--- All Insights ---")
             print()
             for insight in all_insights:
                 print(f"ID: {insight.id}, Indice: {insight.indice}, Recommendation: {insight.recommendation}")
             print()
-        else:
-            print("\nNo insights found in the database.")
+
