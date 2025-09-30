@@ -9,6 +9,10 @@ class PaymentType:
             self.name = name
 
     @property
+    def id(self) -> str:
+        return self.__id
+
+    @property
     def name(self) -> str:
         return self._name
     

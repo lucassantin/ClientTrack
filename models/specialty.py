@@ -16,6 +16,12 @@ class Specialty:
         if isinstance(description, str):
             self.__description = description
 
+
+
+    @property
+    def id(self) -> str:
+        return self.__id
+
     @property
     def specialty_id(self):
         return self._specialty_id

@@ -5,7 +5,7 @@ import datetime
 import uuid
 
 class Client(User):
-    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, user_id:int =None, id:int = None):
+    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, user_id:str =None, id:str = str(uuid.uuid4())):
         super().__init__(name, contact, user_id=user_id)
 
         self._id = None
@@ -13,9 +13,9 @@ class Client(User):
         self._insight = None
         self._register = []
         self._accumulatedIndice = 0
-        self.__id = str(uuid.uuid4())
+        self._id = None
 
-        if isinstance(id, int):
+        if isinstance(id, str):
             self._id = id
 
         if isinstance(birthDay, str):
@@ -28,6 +28,10 @@ class Client(User):
         if isinstance(indice, int) and isinstance(recommendation, str):
             self._insight = Insight(indice, recommendation)
 
+
+    @property
+    def id(self) -> str:
+        return self.__id
 
     @property
     def id(self) -> int:

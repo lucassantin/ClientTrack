@@ -16,6 +16,10 @@ class Payment:
             self.__value = float(value)
 
     @property
+    def id(self) -> str:
+        return self.__id
+
+    @property
     def type(self) -> PaymentType:
         return self.__type
     

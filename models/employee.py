@@ -4,19 +4,22 @@ import uuid
 
 
 class Employee(User):
-    def __init__(self, name: str, contact: str, specialty: Specialty, employee_id: int = None):
-        super().__init__(name, contact)
+    def __init__(self, name: str, contact: str, specialty: Specialty, id: str = str(uuid.uuid4()), user_id: str = None):
+        super().__init__(name=name, contact=contact, user_id=user_id)
 
-        self._employee_id = None
         self.__specialty = None
-        self.__id = str(uuid.uuid4())
+        self.__id = None
 
-        if isinstance(employee_id, int):
-            self._employee_id = employee_id
+        if isinstance(id, str):
+            self.__id = id
 
         if isinstance(specialty, Specialty):
             self.__specialty = specialty
 
+
+    @property
+    def id(self) -> str:
+        return self.__id
 
     @property
     def employee_id(self):

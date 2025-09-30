@@ -1,14 +1,15 @@
 from abc import ABC
 import uuid
+import datetime
 
 class User: #Change to be abstract (ABC)
-    def __init__(self, name: str, contact: str, user_id: int = None):
-        self._user_id = None
+    def __init__(self, name: str, contact: str, user_id: str = str(uuid.uuid4())):
         self._name = None
         self._contact = None
-        self.__user_id = str(uuid.uuid4())
+        self._registered_at = datetime.datetime.now().isoformat()
+        self._user_id = None
 
-        if isinstance(user_id, int):
+        if isinstance(user_id, str):
             self._user_id = user_id
 
         if isinstance(name, str):
@@ -16,6 +17,14 @@ class User: #Change to be abstract (ABC)
 
         if isinstance(contact, str):
             self.contact = contact
+
+    @property
+    def registered_at(self):
+        return self._registered_at
+
+    @property
+    def user_id(self) -> str:
+        return self.__user_id
 
     @property
     def user_id(self):

@@ -18,6 +18,10 @@ class Service:
 
 
     @property
+    def id(self) -> str:
+        return self.__id
+
+    @property
     def name(self) -> str:
         return self.__name
 

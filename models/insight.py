@@ -16,6 +16,11 @@ class Insight:
         if isinstance(recommendation, str):
             self._recommendation = recommendation
 
+
+    @property
+    def id(self) -> str:
+        return self.__id
+
     @property
     def id(self) -> int:
         return self._id

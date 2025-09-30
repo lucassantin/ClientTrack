@@ -31,6 +31,10 @@ class Appointment:
 
 
     @property
+    def id(self) -> str:
+        return self.__id
+
+    @property
     def created_at(self) -> str:
         return self.__created_at
 
