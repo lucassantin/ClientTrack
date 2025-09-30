@@ -1,10 +1,12 @@
 from abc import ABC
+import uuid
 
 class User: #Change to be abstract (ABC)
     def __init__(self, name: str, contact: str, user_id: int = None):
         self._user_id = None
         self._name = None
         self._contact = None
+        self.__user_id = str(uuid.uuid4())
 
         if isinstance(user_id, int):
             self._user_id = user_id

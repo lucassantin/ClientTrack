@@ -2,6 +2,7 @@ import datetime
 from models.service import Service
 from models.employee import Employee
 from models.payment import Payment
+import uuid
 
 class Appointment:
     def __init__(self, appointment_date: str,service: Service, employee: Employee, payment: Payment):
@@ -10,6 +11,7 @@ class Appointment:
         self.__service = None
         self.__employee = None
         self.__payment = None
+        self.__id = str(uuid.uuid4())  
 
         if isinstance(appointment_date, str):
             try:

@@ -1,6 +1,9 @@
+import uuid
+
 class PaymentType:
     def __init__(self, name: str):
         self.name = None
+        self.__id = str(uuid.uuid4())
 
         if isinstance(name, str):
             self.name = name

@@ -2,6 +2,8 @@ from models.user import User
 from models.insight import Insight
 from models.appointment import Appointment
 import datetime
+import uuid
+
 class Client(User):
     def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, user_id:int =None, id:int = None):
         super().__init__(name, contact, user_id=user_id)
@@ -11,6 +13,7 @@ class Client(User):
         self._insight = None
         self._register = []
         self._accumulatedIndice = 0
+        self.__id = str(uuid.uuid4())
 
         if isinstance(id, int):
             self._id = id

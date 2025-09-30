@@ -1,11 +1,13 @@
 from models.payment_type import PaymentType
 import datetime
+import uuid
 
 class Payment:
     def __init__(self, type: PaymentType, value: float):
         self.__type = None
         self.__value = None
         self.__date_time = datetime.datetime.now()
+        self.__id = str(uuid.uuid4())
 
         if isinstance(type, PaymentType):
             self.__type = type

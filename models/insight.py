@@ -1,8 +1,11 @@
+import uuid
+
 class Insight:
     def __init__(self, indice: int, recommendation: str, id: int = None):
         self._id = None
         self._indice = None
         self._recommendation = None
+        self.__id = str(uuid.uuid4())
         
         if isinstance(id,int):
             self._id = id

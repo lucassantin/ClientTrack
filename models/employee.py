@@ -1,5 +1,6 @@
 from models.user import User
 from models.specialty import Specialty
+import uuid
 
 
 class Employee(User):
@@ -8,6 +9,7 @@ class Employee(User):
 
         self._employee_id = None
         self.__specialty = None
+        self.__id = str(uuid.uuid4())
 
         if isinstance(employee_id, int):
             self._employee_id = employee_id

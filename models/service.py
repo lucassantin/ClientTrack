@@ -1,8 +1,11 @@
+import uuid
+
 class Service:
     def __init__(self, name: str, description: str, price: float):
         self.__name = None
         self.__description = None
         self.__price = None
+        self.__id = str(uuid.uuid4())
 
         if isinstance(name, str):
             self.__name = name

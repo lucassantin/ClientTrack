@@ -1,8 +1,11 @@
+import uuid
+
 class Specialty:
     def __init__(self, name:str, description:str, specialty_id:int=None):
         self._specialty_id = None
         self.__name = None
         self.__description = None
+        self.__id = str(uuid.uuid4())
 
         if isinstance(specialty_id, int):
             self._specialty_id = specialty_id
