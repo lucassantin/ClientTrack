@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS insights (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     indice INTEGER NOT NULL,
     recommendation TEXT
 )

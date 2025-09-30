@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS employees (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     user_id INTEGER NOT NULL,
     specialty_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id),
