@@ -4,9 +4,8 @@ from models.specialty import Specialty
 class SpecialtySqliteDAO:
     """Concrete DAO for storing Specialty objects in a SQLite database."""
 
-    def __init__(self, db_path: str):
+    def __init__(self):
         self.db_path = "clienttrack.db"
-        self._create_table()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Establishes a connection to the SQLite database."""
@@ -17,8 +16,8 @@ class SpecialtySqliteDAO:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO specialties (id, name, description) VALUES (?, ?, ?)",
-                (specialty.id, specialty.name, specialty.description)
+                "INSERT INTO specialties (specialty_id, name, description) VALUES (?, ?, ?)",
+                (specialty.id, specialty.name, specialty.description) 
             )
             conn.commit()
         return specialty
@@ -28,10 +27,10 @@ class SpecialtySqliteDAO:
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM specialties WHERE id = ?", (specialty_id,))
+            cursor.execute("SELECT * FROM specialties WHERE specialty_id = ?", (specialty_id,))
             row = cursor.fetchone()
             if row:
-                return Specialty(id=row['id'], name=row['name'], description=row['description'])
+                return Specialty(id=row['specialty_id'], name=row['name'], description=row['description'])
         return None
 
     def find_all(self):
@@ -43,7 +42,7 @@ class SpecialtySqliteDAO:
             cursor.execute("SELECT * FROM specialties")
             rows = cursor.fetchall()
             for row in rows:
-                specialties.append(Specialty(id=row['id'], name=row['name'], description=row['description']))
+                specialties.append(Specialty(id=row['specialty_id'], name=row['name'], description=row['description']))
         return specialties
 
     def update(self, specialty: Specialty):
@@ -51,7 +50,7 @@ class SpecialtySqliteDAO:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "UPDATE specialties SET name = ?, description = ? WHERE id = ?",
+                "UPDATE specialties SET name = ?, description = ? WHERE specialty_id = ?",
                 (specialty.name, specialty.description, specialty.id)
             )
             conn.commit()
@@ -61,6 +60,6 @@ class SpecialtySqliteDAO:
         """Deletes a specialty by its ID."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM specialties WHERE id = ?", (specialty_id,))
+            cursor.execute("DELETE FROM specialties WHERE specialty_id = ?", (specialty_id,))
             conn.commit()
             return cursor.rowcount > 0

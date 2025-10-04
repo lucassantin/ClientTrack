@@ -6,7 +6,6 @@ class PaymentTypeSqliteDAO:
 
     def __init__(self):
         self.db_path = "clienttrack.db"
-        self._create_table()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Establishes a connection to the SQLite database."""

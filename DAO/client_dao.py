@@ -11,7 +11,6 @@ class ClientSqliteDAO:
         self.db_path = "clienttrack.db"
         self.user_dao = UserSqliteDAO()
         self.insight_dao = InsightSqliteDAO()
-        self._create_table()
 
     def _get_connection(self) -> sqlite3.Connection:
         return sqlite3.connect(self.db_path)

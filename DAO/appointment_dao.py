@@ -13,7 +13,6 @@ class AppointmentSqliteDAO:
         self.service_dao = ServiceSqliteDAO()
         self.employee_dao = EmployeeSqliteDAO(db_path)
         self.payment_dao = PaymentSqliteDAO()
-        self._create_table()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Establishes a connection to the SQLite database."""
