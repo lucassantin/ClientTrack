@@ -1,12 +1,15 @@
 import uuid
 
 class PaymentType:
-    def __init__(self, name: str):
-        self.name = None
-        self.__id = str(uuid.uuid4())
+    def __init__(self, name: str, id: str = None):
+        self._name = None
+        self.__id = id if id else str(uuid.uuid4())
 
         if isinstance(name, str):
             self.name = name
+        
+        if isinstance(id, str):
+            self.__id = id
 
     @property
     def id(self) -> str:

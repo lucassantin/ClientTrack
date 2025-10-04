@@ -1,11 +1,13 @@
 import uuid
+from models.specialty import Specialty
 
 class Service:
-    def __init__(self, name: str, description: str, price: float):
+    def __init__(self, name: str, description: str, price: float, id: str = None, specialty: Specialty = None):
         self.__name = None
         self.__description = None
         self.__price = None
-        self.__id = str(uuid.uuid4())
+        self.__specialty = None
+        self.__id = id if id else str(uuid.uuid4())
 
         if isinstance(name, str):
             self.__name = name
@@ -16,6 +18,30 @@ class Service:
         if isinstance(price, (int, float)):
             self.__price = float(price)
 
+        if isinstance(id, str):
+            self.__id = id
+
+        if isinstance(specialty, Specialty):
+            self.__specialty = specialty
+
+
+    @property
+    def specialty(self) -> Specialty:
+        return self.__specialty
+    
+    @specialty.setter
+    def specialty(self, specialty: Specialty):
+        if isinstance(specialty, Specialty):
+            self.__specialty = specialty
+        else:
+            raise TypeError("Specialty must be a Specialty instance")
+
+    @specialty.setter
+    def specialty(self, specialty: Specialty):
+        if isinstance(specialty, Specialty):
+            self.__specialty = specialty
+        else:
+            raise TypeError("Specialty must be a Specialty instance")
 
     @property
     def id(self) -> str:
