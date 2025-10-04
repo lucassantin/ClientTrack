@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS specialties (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
+    specialty_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
     description TEXT
 );
