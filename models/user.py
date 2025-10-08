@@ -1,39 +1,48 @@
 from abc import ABC
 import uuid
 import datetime
+from abc import ABC
 
-class User: #Change to be abstract (ABC)
-    def __init__(self, name: str, contact: str, user_id: str = str(uuid.uuid4())):
+class User(ABC):
+    def __init__(self, name: str, contact: str, id: str = None, registered_at: str = None):
         self._name = None
         self._contact = None
-        self._registered_at = datetime.datetime.now().isoformat()
-        self._user_id = None
+        self._registered_at = registered_at if registered_at else datetime.datetime.now().isoformat()
+        self._id = id if id else str(uuid.uuid4())
 
-        if isinstance(user_id, str):
-            self._user_id = user_id
+        if isinstance(id, str):
+            self._id = id
 
         if isinstance(name, str):
             self.name = name
 
         if isinstance(contact, str):
             self.contact = contact
+        
+        if isinstance(registered_at, str):
+            self._registered_at = registered_at
 
     @property
     def registered_at(self):
         return self._registered_at
-
-    @property
-    def user_id(self) -> str:
-        return self.__user_id
-
-    @property
-    def user_id(self):
-        return self._user_id
     
-    @user_id.setter
-    def user_id(self, user_id:int):
-        if isinstance(user_id, int):
-            self._user_id = user_id
+    @registered_at.setter
+    def registered_at(self, registered_at: str):
+        if isinstance(registered_at, str):
+            self._registered_at = registered_at
+        else:
+            raise TypeError("registered_at must be a string")
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    
+    
+    @id.setter
+    def id(self, id:str):
+        if isinstance(id, str):
+            self._id = id
 
     @property
     def name(self) -> str:

@@ -5,15 +5,14 @@ import datetime
 import uuid
 
 class Client(User):
-    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, user_id:str =None, id:str = str(uuid.uuid4())):
-        super().__init__(name, contact, user_id=user_id)
+    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, id:str = None, **kwargs):
+        super().__init__(name=name, contact=contact, **kwargs)
 
-        self._id = None
+        self._id = id if id else str(uuid.uuid4())
         self._birthDay = None
         self._insight = None
         self._register = []
         self._accumulatedIndice = 0
-        self._id = None
 
         if isinstance(id, str):
             self._id = id
@@ -31,15 +30,11 @@ class Client(User):
 
     @property
     def id(self) -> str:
-        return self.__id
-
-    @property
-    def id(self) -> int:
         return self._id
     
     @id.setter
-    def id(self, id:int):
-        if isinstance(id, int):
+    def id(self, id:str):
+        if isinstance(id, str):
             self._id = id
 
     @property
