@@ -1,92 +1,99 @@
 import sqlite3
 from models.client import Client
-from models.user import User
+from models.insight import Insight
 from DAO.user_dao import UserSqliteDAO
-from DAO.insight_dao import InsightSqliteDAO
 
 class ClientSqliteDAO:
-    """DAO for Client objects, handles both clients and users tables."""
+    """DAO para objetos Client, seguindo o padrão de Composição para Insight."""
 
-    def __init__(self, db_path: str):
-        self.db_path = "clienttrack.db"
-        self.user_dao = UserSqliteDAO()
-        self.insight_dao = InsightSqliteDAO()
+    def __init__(self, db_path="clienttrack.db"):
+        self.db_path = db_path
+        self.user_dao = UserSqliteDAO(db_path)
 
     def _get_connection(self) -> sqlite3.Connection:
+        """Estabelece uma conexão com o banco de dados."""
         return sqlite3.connect(self.db_path)
 
     def create(self, client: Client) -> Client:
+        """Salva um novo cliente nas tabelas 'users' e 'clients'."""
         self.user_dao.create(client)
+
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            insight_id = client.insight.id if client.insight else None
             cursor.execute(
-                "INSERT INTO clients (id, birthday, insight_id, accumulated_indice) VALUES (?, ?, ?, ?)",
-                (client.id, client.birthDay, insight_id, client.accumulatedIndice)
+                """INSERT INTO clients 
+                   (id, birthday, accumulatedIndice, insight_indice, insight_recommendation) 
+                   VALUES (?, ?, ?, ?, ?)""",
+                (client.id, client.birthDay, client.accumulatedIndice, 
+                 client.insight.indice, client.insight.recommendation)
             )
             conn.commit()
         return client
 
-    def find_by_id(self, client_id: str):
-        user = self.user_dao.find_by_id(client_id)
-        if not user:
-            return None
+    def _map_row_to_client(self, row: sqlite3.Row) -> Client:
+        """Cria um objeto Client a partir de uma linha do banco de dados."""
+        return Client(
+            id=row['id'],
+            name=row['name'],
+            contact=row['contact'],
+            registered_at=row['registered_at'],
+            birthDay=row['birthday'],
+            accumulatedIndice=row['accumulatedIndice'],
+            indice=row['insight_indice'],
+            recommendation=row['insight_recommendation']
+        )
 
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM clients WHERE id = ?", (client_id,))
-            client_row = cursor.fetchone()
-            if client_row:
-                insight = self.insight_dao.find_by_id(client_row['insight_id']) if client_row['insight_id'] else None
-                user = self.user_dao.find_by_id(client_row['user_id']) if client_row['user_id'] else None
-                if user:
-                    user = User(user_id=user.user_id, name=user.name, contact=user.contact)
-
-                return Client(
-                    id=client_row['id'], name=user.name, contact=user.contact,
-                    registered_at=user.registered_at, birthday=client_row['birthday'],
-                    accumulated_indice=client_row['accumulated_indice'], insight=insight
-                )
-        return None
-
-    def find_all(self):
+    def find_all(self) -> list[Client]:
+        """Busca todos os clientes juntando dados das tabelas users e clients."""
+        sql = """
+            SELECT u.*, c.birthday, c.accumulatedIndice, c.insight_indice, c.insight_recommendation 
+            FROM users u JOIN clients c ON u.id = c.id
+        """
         clients = []
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT u.id, u.name, u.contact, u.registered_at, c.birthday, c.insight_id, c.accumulated_indice
-                FROM users u JOIN clients c ON u.id = c.id
-                ORDER BY u.name
-            """)
-            rows = cursor.fetchall()
+            rows = conn.execute(sql).fetchall()
             for row in rows:
-                insight = self.insight_dao.find_by_id(row['insight_id']) if row['insight_id'] else None
-                user = self.user_dao.find_by_id(row['user_id']) if row['user_id'] else None
-                if user:
-                    user = User(user_id=user.user_id, name=user.name, contact=user.contact)
-
-                clients.append(Client(
-                    id=row['id'], name=user.name, contact=user.contact,
-                    registered_at=user.registered_at, birthday=row['birthday'],
-                    accumulated_indice=row['accumulated_indice'], insight=insight
-                ))
+                clients.append(self._map_row_to_client(row))
         return clients
 
-    def update(self, client: Client):
+    def find_by_id(self, client_id: str) -> Client | None:
+        """Busca um cliente específico pelo seu ID."""
+        sql = """
+            SELECT u.*, c.birthday, c.accumulatedIndice, c.insight_indice, c.insight_recommendation 
+            FROM users u JOIN clients c ON u.id = c.id 
+            WHERE u.id = ?
+        """
+        with self._get_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(sql, (client_id,)).fetchone()
+            if row:
+                return self._map_row_to_client(row)
+        return None
+
+    def update(self, client: Client) -> Client:
+        """Atualiza os dados de um cliente nas tabelas 'users' e 'clients'."""
         self.user_dao.update(client)
         with self._get_connection() as conn:
-            cursor = conn.cursor()
-            insight_id = client.insight.id if client.insight else None
-            cursor.execute(
-                "UPDATE clients SET birthday = ?, insight_id = ?, accumulated_indice = ? WHERE id = ?",
-                (client.birthDay, insight_id, client.accumulatedIndice, client.id)
+            conn.execute(
+                """UPDATE clients SET 
+                   birthday = ?, accumulatedIndice = ?, insight_indice = ?, insight_recommendation = ? 
+                   WHERE id = ?""",
+                (client.birthDay, client.accumulatedIndice, 
+                 client.insight.indice, client.insight.recommendation, client.id)
             )
             conn.commit()
-        return self.find_by_id(client.id)
+        return client
+
+    def update_indice(self, client_id: str, new_indice: int):
+        """Método específico para atualizar apenas o índice acumulado de um cliente."""
+        with self._get_connection() as conn:
+            conn.execute(
+                "UPDATE clients SET accumulatedIndice = ? WHERE id = ?",
+                (new_indice, client_id)
+            )
+            conn.commit()
 
     def delete(self, client_id: str) -> bool:
-        # By using `ON DELETE CASCADE` in the schema, deleting the user
-        # will automatically delete the corresponding client record.
+        """Deleta um cliente (e usuário correspondente) do banco de dados."""
         return self.user_dao.delete(client_id)

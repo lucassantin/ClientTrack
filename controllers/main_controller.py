@@ -1,16 +1,18 @@
 
 from views.main_view import MainView
 from controllers.gerenciamento_controller import GerenciamentoController
+from controllers.user_controller import UserController
 
 class MainController:
     def __init__(self):
         self.main_view = MainView()
         self.gerenciamento_controller = GerenciamentoController()
+        self.user_controller = UserController()
 
     def iniciar(self):
         try:
             while True:
-                self.main_view.limpar_tela()
+                #self.main_view.limpar_tela()
                 self.main_view.exibir_menu()
                 command = self.main_view.obter_escolha()
 
@@ -18,7 +20,7 @@ class MainController:
                     self.gerenciamento_controller.iniciar()
                 
                 elif command == "2":
-                    self.main_view.exibir_mensagem("Módulo de Usuários não implementado.")
+                    self.user_controller.iniciar()
 
                 elif command == "0":
                     break 
