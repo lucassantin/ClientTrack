@@ -96,7 +96,7 @@ class Client(User):
         """Subtrai os pontos do cliente e retorna a recomendação."""
         if self.can_redeem():
             recommendation_text = self._insight.recommendation
-            self.accumulatedIndice -= self._insight.indice
+            self._accumulatedIndice -= self._insight.indice
             return recommendation_text
         else:
             raise ValueError("Índice acumulado insuficiente para este resgate.")

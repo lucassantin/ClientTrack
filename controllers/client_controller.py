@@ -16,6 +16,8 @@ class ClientController:
                 case '2': self._adicionar()
                 case '3': self._atualizar()
                 case '4': self._deletar()
+                case '5': self._verificar_status()
+                case '6': self._resgatar_insight()
                 case '0': break
                 case _: self.view.exibir_mensagem("Opção inválida.", sucesso=False)
 
@@ -57,12 +59,10 @@ class ClientController:
         novos_dados = self.view.obter_novos_dados_para_atualizar(cliente_selecionado)
         
         try:
-            # Atualiza os atributos do cliente
             cliente_selecionado.name = novos_dados['name']
             cliente_selecionado.contact = novos_dados['contact']
             cliente_selecionado.birthDay = novos_dados['birthDay'] or None
             
-            # Atualiza os atributos do insight composto
             cliente_selecionado.insight.indice = int(novos_dados['indice'])
             cliente_selecionado.insight.recommendation = novos_dados['recommendation']
             
@@ -91,3 +91,41 @@ class ClientController:
                     self.view.exibir_mensagem("Erro: Cliente não encontrado para deletar.", sucesso=False)
             except Exception as e:
                 self.view.exibir_mensagem(f"Não foi possível deletar: {e}", sucesso=False)
+
+    def _verificar_status(self):
+        clientes = self.dao.find_all()
+        cliente_selecionado = self.view.obter_escolha_cliente(clientes, "verificar o status")
+        if not cliente_selecionado:
+            return
+        
+        self.view.exibir_status_insight(cliente_selecionado)
+
+    def _resgatar_insight(self):
+        clientes = self.dao.find_all()
+        cliente_selecionado = self.view.obter_escolha_cliente(clientes, "resgatar um insight")
+        if not cliente_selecionado:
+            return
+
+        if not cliente_selecionado.insight:
+            self.view.exibir_mensagem("Este cliente não possui um insight configurado.", sucesso=False)
+            return
+            
+        if not cliente_selecionado.can_redeem():
+            pontos_faltantes = cliente_selecionado.insight.indice - cliente_selecionado.accumulatedIndice
+            msg = f"Pontos insuficientes. Faltam {pontos_faltantes} ponto(s)."
+            self.view.exibir_mensagem(msg, sucesso=False)
+            return
+
+        if self.view.confirmar_resgate(cliente_selecionado):
+            try:
+                recomendacao = cliente_selecionado.redeem_insight()
+                self.dao.update_indice(cliente_selecionado.id, cliente_selecionado.accumulatedIndice)
+                
+                msg = (f"Insight resgatado com sucesso!\n\n"
+                       f"Recomendação: '{recomendacao}'\n"
+                       f"Novo saldo de pontos: {cliente_selecionado.accumulatedIndice}")
+                self.view.exibir_mensagem(msg)
+            except (ValueError, Exception) as e:
+                self.view.exibir_mensagem(f"Não foi possível resgatar: {e}", sucesso=False)
+        else:
+            self.view.exibir_mensagem("Resgate cancelado.", sucesso=False)

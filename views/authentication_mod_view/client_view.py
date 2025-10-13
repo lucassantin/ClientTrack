@@ -7,13 +7,15 @@ class ClientView:
 
     def exibir_menu_clientes(self) -> str:
         self.limpar_tela()
-        print("======= GERENCIAR CLIENTES =======\n")
+        print("======= GERENCIAR CLIENTES E FIDELIDADE =======\n")
         print("  1. Listar todos os clientes")
         print("  2. Adicionar novo cliente")
         print("  3. Atualizar um cliente")
         print("  4. Deletar um cliente")
+        print("  5. Verificar Pontuação/Insight de um Cliente")
+        print("  6. Resgatar Insight para um Cliente")
         print("\n  0. Voltar")
-        print("\n================================")
+        print("\n=============================================")
         return input("Escolha uma opção: ")
 
     def obter_dados_cliente(self) -> dict:
@@ -36,17 +38,56 @@ class ClientView:
 
     def exibir_lista_clientes(self, clientes: list[Client]):
         self.limpar_tela()
-        print("=========== LISTA DE CLIENTES ===========\n")
+        print("===================== LISTA DE CLIENTES =====================\n")
         if not clientes:
             print("Nenhum cliente cadastrado.")
         else:
-            print(f"{'#':<3} {'NOME':<30} {'CONTATO':<20} {'ANIVERSÁRIO'}")
-            print("-" * 75)
+            print(f"{'#':<3} {'NOME':<25} {'CONTATO':<20} {'ANIVERSÁRIO':<12} {'PONTOS':<8} {'META'}")
+            print("-" * 80)
+            
             for i, cliente in enumerate(clientes):
-                print(f"{i+1:<3} {cliente.name:<30} {cliente.contact:<20} {cliente.birthDay or 'N/A'}")
+                birthday_str = cliente.birthDay or "N/A"
+                
+                meta_str = cliente.insight.indice if cliente.insight else "N/A"
+
+                print(
+                    f"{i+1:<3} "
+                    f"{cliente.name:<25} "
+                    f"{cliente.contact:<20} "
+                    f"{birthday_str:<12} "
+                    f"{cliente.accumulatedIndice:<8} "
+                    f"{meta_str}"
+                )
         
-        print("\n=========================================")
+        print("\n===========================================================")
         input("Pressione Enter para continuar...")
+
+    def exibir_status_insight(self, cliente: Client):
+        self.limpar_tela()
+        print(f"====== STATUS DE {cliente.name.upper()} ======\n")
+        print(f"Pontos Acumulados: {cliente.accumulatedIndice}")
+        if cliente.insight:
+            print(f"Meta para Insight: {cliente.insight.indice} pontos")
+            print(f"Recomendação: '{cliente.insight.recommendation}'")
+            if cliente.can_redeem():
+                print("\nStatus: PODE RESGATAR!")
+            else:
+                pontos_faltantes = cliente.insight.indice - cliente.accumulatedIndice
+                print(f"\nStatus: Faltam {pontos_faltantes} ponto(s) para resgatar.")
+        else:
+            print("Nenhum insight configurado para este cliente.")
+        print("\n" + "=" * 50)
+        input("Pressione Enter para continuar...")
+
+    def confirmar_resgate(self, cliente: Client) -> bool:
+        self.limpar_tela()
+        print("====== CONFIRMAR RESGATE ======\n")
+        print(f"Cliente: {cliente.name}")
+        print(f"Pontos Atuais: {cliente.accumulatedIndice}")
+        print(f"Custo do Insight: {cliente.insight.indice} pontos")
+        print(f"Saldo Após Resgate: {cliente.accumulatedIndice - cliente.insight.indice} pontos\n")
+        confirmacao = input("Confirmar o resgate? (s/n): ").lower()
+        return confirmacao == 's'
 
     def obter_escolha_cliente(self, clientes: list[Client], acao: str) -> Client | None:
         self.limpar_tela()
