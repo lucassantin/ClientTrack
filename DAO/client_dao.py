@@ -6,9 +6,9 @@ from DAO.user_dao import UserSqliteDAO
 class ClientSqliteDAO:
     """DAO para objetos Client, seguindo o padrão de Composição para Insight."""
 
-    def __init__(self, db_path="clienttrack.db"):
-        self.db_path = db_path
-        self.user_dao = UserSqliteDAO(db_path)
+    def __init__(self):
+        self.db_path = "clienttrack.db"
+        self.user_dao = UserSqliteDAO()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Estabelece uma conexão com o banco de dados."""
@@ -40,7 +40,7 @@ class ClientSqliteDAO:
             birthDay=row['birthday'],
             accumulatedIndice=row['accumulatedIndice'],
             indice=row['insight_indice'],
-            recommendation=row['insight_recommendation']
+            recommendation=row['insight_recommendation'] 
         )
 
     def find_all(self) -> list[Client]:

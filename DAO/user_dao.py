@@ -4,8 +4,8 @@ from models.user import User
 class UserSqliteDAO:
     """DAO para o modelo base User."""
 
-    def __init__(self, db_path="clienttrack.db"):
-        self.db_path = db_path
+    def __init__(self):
+        self.db_path = "clienttrack.db"
 
     def _get_connection(self) -> sqlite3.Connection:
         return sqlite3.connect(self.db_path)

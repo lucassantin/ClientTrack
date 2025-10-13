@@ -4,7 +4,7 @@ from models.insight import Insight
 class InsightSqliteDAO:
     """Concrete DAO for storing Insight objects in a SQLite database."""
 
-    def __init__(self, db_path: str):
+    def __init__(self):
         self.db_path = "clienttrack.db"
 
     def _get_connection(self) -> sqlite3.Connection:

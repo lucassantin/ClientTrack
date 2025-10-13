@@ -3,30 +3,30 @@ import datetime
 import uuid
 
 class Payment:
-    def __init__(self, type: PaymentType, value: float):
-        self.__type = None
+    def __init__(self, payment_type: PaymentType, value: float, date_time:str=None, id:str=None):
+        self.__payment_type = None
         self.__value = None
-        self.__date_time = datetime.datetime.now()
-        self.__id = str(uuid.uuid4())
+        self.__date_time = date_time if date_time else datetime.datetime.now()
+        self.__id = id if id else str(uuid.uuid4())
 
-        if isinstance(type, PaymentType):
-            self.__type = type
+        if isinstance(payment_type, PaymentType):
+            self.__payment_type = payment_type
 
         if isinstance(value, float):
             self.__value = float(value)
-
+ 
     @property
     def id(self) -> str:
         return self.__id
 
     @property
-    def type(self) -> PaymentType:
-        return self.__type
+    def payment_type(self) -> PaymentType:
+        return self.__payment_type
     
-    @type.setter
-    def type(self, type: PaymentType):
-        if isinstance(type, PaymentType):
-            self.__type = type
+    @payment_type.setter
+    def payment_type(self, payment_type: PaymentType):
+        if isinstance(payment_type, PaymentType):
+            self.__payment_type = payment_type
         else:
             raise TypeError("Type must be an instance of TypePayment")
         

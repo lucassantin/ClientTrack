@@ -64,10 +64,23 @@ class EmployeeView:
     def obter_escolha_employee(self, employees: list[Employee], acao: str) -> Employee | None:
         self.limpar_tela()
         print(f"====== SELECIONE UM FUNCIONÁRIO PARA {acao.upper()} ======\n")
-        # ... (lógica idêntica ao obter_escolha_cliente) ...
+        if not employees:
+            self.exibir_mensagem("Nenhum funcionário para selecionar.", sucesso=False)
+            return None
+
         for i, emp in enumerate(employees):
             print(f"  {i + 1}. {emp.name}")
-        # ... (resto da lógica)
+        print("\n  0. Cancelar")
+
+        while True:
+            try:
+                escolha = int(input("\nDigite o número do funcionário: "))
+                if 0 <= escolha <= len(employees):
+                    return None if escolha == 0 else employees[escolha - 1]
+                else:
+                    print("Número inválido.")
+            except ValueError:
+                print("Entrada inválida. Por favor, digite um número.")
 
     def obter_novos_dados_para_atualizar(self, employee: Employee, especialidades: list[Specialty]) -> dict:
         self.limpar_tela()
@@ -103,19 +116,17 @@ class EmployeeView:
                 print("Entrada inválida.")
         
         return {
-            "name": name or employee.name,
-            "contact": contact or employee.contact,
+            "name": name.strip() or employee.name,
+            "contact": contact.strip() or employee.contact,
             "specialty": nova_especialidade
         }
 
     def confirmar_exclusao(self, nome: str) -> bool:
-        # ... (lógica idêntica ao ClientView)
         self.limpar_tela()
         confirmacao = input(f"Tem certeza que deseja deletar o funcionário '{nome}'? (s/n): ").lower()
         return confirmacao == 's'
 
     def exibir_mensagem(self, msg: str, sucesso: bool = True):
-        # ... (lógica idêntica ao ClientView)
         self.limpar_tela()
         print(f"--- {'SUCESSO' if sucesso else 'ERRO'} ---\n")
         print(msg)

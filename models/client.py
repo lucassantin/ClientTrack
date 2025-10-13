@@ -1,21 +1,23 @@
 from models.user import User
 from models.insight import Insight
-from models.appointment import Appointment
 import datetime
 import uuid
 
 class Client(User):
-    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, id:str = None, **kwargs):
+    def __init__(self, name: str, contact: str, birthDay: str, indice: int, recommendation: str, id:str = None, accumulatedIndice:int = 0, **kwargs):
         super().__init__(name=name, contact=contact, **kwargs)
 
         self._id = id if id else str(uuid.uuid4())
         self._birthDay = None
-        self._insight = None
+        self._accumulatedIndice = None
         self._register = []
-        self._accumulatedIndice = 0
+        self._insight = None
 
         if isinstance(id, str):
             self._id = id
+
+        if isinstance(accumulatedIndice, int):
+            self._accumulatedIndice = accumulatedIndice
 
         if isinstance(birthDay, str):
             try:
@@ -68,10 +70,11 @@ class Client(User):
         return self._register
     
     @register.setter
-    def register(self, register: Appointment):
+    def register(self, register: 'Appointment'):
+        from models.appointment import Appointment 
         if isinstance(register, Appointment):
             self._register.append(register)
-            self.incremmententIndice()
+            self.increment_indice() 
         else:
             raise TypeError("Register must be an instance of Appointment")
         
@@ -79,15 +82,21 @@ class Client(User):
     def accumulatedIndice(self) -> int:
         return self._accumulatedIndice
     
-    def incremmententIndice(self) -> None:
-        self._accumulatedIndice += 1
+    def increment_indice(self, amount: int = 1):
+        """Incrementa o índice do cliente."""
+        self._accumulatedIndice += amount
 
-    def isAvailableInsight(self) -> bool:
-        return self._accumulatedIndice >= self.insight.indice
-    
-    def givenInsight(self) -> str:
-        if self.isAvailableInsight():
-            self._accumulatedIndice -= self.insight.indice
-            return self.insight.recommendation
+    def can_redeem(self) -> bool:
+        """Verifica se o cliente pode resgatar seu insight associado."""
+        if not self._insight:
+            return False
+        return self._accumulatedIndice >= self._insight.indice
+
+    def redeem_insight(self) -> str:
+        """Subtrai os pontos do cliente e retorna a recomendação."""
+        if self.can_redeem():
+            recommendation_text = self._insight.recommendation
+            self.accumulatedIndice -= self._insight.indice
+            return recommendation_text
         else:
-            return "Not enough accumulated indice to receive insight."
+            raise ValueError("Índice acumulado insuficiente para este resgate.")

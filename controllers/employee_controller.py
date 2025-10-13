@@ -74,12 +74,19 @@ class EmployeeController:
 
     def _deletar(self):
         funcionarios = self.employee_dao.find_all()
+        if not funcionarios:
+            self.view.exibir_mensagem("Nenhum funcionário para deletar.", sucesso=False)
+            return
+
         funcionario_selecionado = self.view.obter_escolha_employee(funcionarios, "deletar")
         if not funcionario_selecionado:
             return
 
         if self.view.confirmar_exclusao(funcionario_selecionado.name):
-            if self.employee_dao.delete(funcionario_selecionado.id):
-                self.view.exibir_mensagem("Funcionário deletado com sucesso!")
-            else:
-                self.view.exibir_mensagem("Erro ao deletar funcionário.", sucesso=False)
+            try: # << CORREÇÃO: Adicionando try/except para robustez
+                if self.employee_dao.delete(funcionario_selecionado.id):
+                    self.view.exibir_mensagem("Funcionário deletado com sucesso!")
+                else:
+                    self.view.exibir_mensagem("Erro: Funcionário não encontrado para deletar.", sucesso=False)
+            except Exception as e:
+                self.view.exibir_mensagem(f"Não foi possível deletar: {e}", sucesso=False)

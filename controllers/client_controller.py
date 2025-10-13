@@ -46,18 +46,25 @@ class ClientController:
             
     def _atualizar(self):
         clientes = self.dao.find_all()
+        if not clientes:
+            self.view.exibir_mensagem("Nenhum cliente para atualizar.", sucesso=False)
+            return
+
         cliente_selecionado = self.view.obter_escolha_cliente(clientes, "atualizar")
         if not cliente_selecionado:
             return
 
         novos_dados = self.view.obter_novos_dados_para_atualizar(cliente_selecionado)
-        if not novos_dados:
-            return
-            
+        
         try:
+            # Atualiza os atributos do cliente
             cliente_selecionado.name = novos_dados['name']
             cliente_selecionado.contact = novos_dados['contact']
             cliente_selecionado.birthDay = novos_dados['birthDay'] or None
+            
+            # Atualiza os atributos do insight composto
+            cliente_selecionado.insight.indice = int(novos_dados['indice'])
+            cliente_selecionado.insight.recommendation = novos_dados['recommendation']
             
             self.dao.update(cliente_selecionado)
             self.view.exibir_mensagem("Cliente atualizado com sucesso!")
@@ -68,12 +75,19 @@ class ClientController:
 
     def _deletar(self):
         clientes = self.dao.find_all()
+        if not clientes:
+            self.view.exibir_mensagem("Nenhum cliente para deletar.", sucesso=False)
+            return
+
         cliente_selecionado = self.view.obter_escolha_cliente(clientes, "deletar")
         if not cliente_selecionado:
             return
 
         if self.view.confirmar_exclusao(cliente_selecionado.name):
-            if self.dao.delete(cliente_selecionado.id):
-                self.view.exibir_mensagem("Cliente deletado com sucesso!")
-            else:
-                self.view.exibir_mensagem("Erro ao deletar cliente.", sucesso=False)
+            try:
+                if self.dao.delete(cliente_selecionado.id):
+                    self.view.exibir_mensagem("Cliente deletado com sucesso!")
+                else:
+                    self.view.exibir_mensagem("Erro: Cliente não encontrado para deletar.", sucesso=False)
+            except Exception as e:
+                self.view.exibir_mensagem(f"Não foi possível deletar: {e}", sucesso=False)

@@ -12,7 +12,7 @@ class MainController:
     def iniciar(self):
         try:
             while True:
-                #self.main_view.limpar_tela()
+                self.main_view.limpar_tela()
                 self.main_view.exibir_menu()
                 command = self.main_view.obter_escolha()
 

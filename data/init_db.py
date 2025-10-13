@@ -18,10 +18,10 @@ def initialize_database():
                 with open(filepath, 'r') as f:
                     sql_script = f.read()
                     cursor.executescript(sql_script) 
-                print(f" - Script '{sql_file}' executed.")
+                #print(f" - Script '{sql_file}' executed.")
 
             conn.commit()
-            print("Data base start with sucess.")
+            #print("Data base start with sucess.")
     except sqlite3.Error as e:
         print(f"Error: {e}")
 

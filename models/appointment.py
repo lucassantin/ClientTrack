@@ -1,17 +1,19 @@
 import datetime
 from models.service import Service
 from models.employee import Employee
+from models.client import Client
 from models.payment import Payment
 import uuid
 
 class Appointment:
-    def __init__(self, appointment_date: str,service: Service, employee: Employee, payment: Payment):
-        self.__created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def __init__(self, appointment_date: str, service: Service, employee: Employee, payment: Payment, client: Client, created_at: str = None, id:str=None):
+        self.__created_at = created_at if created_at else datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.__appointment_date = None
         self.__service = None
         self.__employee = None
+        self.__client = None
         self.__payment = None
-        self.__id = str(uuid.uuid4())  
+        self.__id = id if id else str(uuid.uuid4())  
 
         if isinstance(appointment_date, str):
             try:
@@ -29,6 +31,19 @@ class Appointment:
         if isinstance(payment, Payment):
             self.__payment = payment
 
+        if isinstance(client, Client):
+            self.__client = client
+
+
+
+    @property
+    def client(self) -> Client:
+        return self.__client
+    
+    @client.setter
+    def client(self, client:Client):
+        if isinstance(client, Client):
+            self.__client = client
 
     @property
     def id(self) -> str:
