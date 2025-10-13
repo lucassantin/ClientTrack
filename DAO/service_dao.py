@@ -1,7 +1,6 @@
-# Em: DAO/service_dao.py
 import sqlite3
 from models.service import Service
-from models.specialty import Specialty # Importar Specialty
+from models.specialty import Specialty 
 
 class ServiceSqliteDAO:
     def __init__(self):
@@ -11,10 +10,9 @@ class ServiceSqliteDAO:
         return sqlite3.connect(self.db_path) 
 
     def create(self, service: Service) -> Service:
-        specialty_id = service.specialty.id if service.specialty else None
+        specialty_id = service.specialty.id if service.specialty else None 
         with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
+            conn.execute(
                 "INSERT INTO services (id, name, description, price, specialty_id) VALUES (?, ?, ?, ?, ?)",
                 (service.id, service.name, service.description, service.price, specialty_id)
             )
@@ -22,37 +20,27 @@ class ServiceSqliteDAO:
         return service
 
     def _map_row_to_service(self, row: sqlite3.Row) -> Service:
-        """Função auxiliar para mapear uma linha do DB para um objeto Service."""
         specialty = None
         if row['specialty_id'] is not None:
-            specialty = Specialty(name=row['specialty_name'], 
-                                  description=row['specialty_description'], 
-                                  id=row['specialty_id'])
+            specialty = Specialty(id=row['specialty_id'], name=row['specialty_name'], description=row['specialty_description'])
         
-        service = Service(name=row['service_name'],
-                          description=row['service_description'],
-                          price=row['service_price'],
-                          id=row['service_id'],
-                          specialty=specialty)
-        return service
+        return Service(id=row['id'], name=row['name'], description=row['description'], price=row['price'], specialty=specialty)
 
     def find_all(self) -> list[Service]:
-        services = []
         sql = """
-            SELECT 
-                s.id as service_id, s.name as service_name, s.description as service_description,
-                s.price as service_price,
-                sp.specialty_id as specialty_id, sp.name as specialty_name, sp.description as specialty_description
+            SELECT s.id, s.name, s.description, s.price, s.specialty_id, 
+                   sp.name as specialty_name, sp.description as specialty_description
             FROM services s
-            LEFT JOIN specialties sp ON s.specialty_id = sp.specialty_id
+            LEFT JOIN specialties sp ON s.specialty_id = sp.specialty_id 
         """
+        services = []
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            rows = cursor.execute(sql).fetchall()
+            rows = conn.execute(sql).fetchall()
             for row in rows:
                 services.append(self._map_row_to_service(row))
         return services
+
 
     def update(self, service: Service) -> Service:
         specialty_id = service.specialty.id if service.specialty else None
@@ -72,13 +60,17 @@ class ServiceSqliteDAO:
             cursor.execute("DELETE FROM services WHERE id = ?", (service_id,))
             conn.commit()
             return cursor.rowcount > 0
-    def find_by_id(self, service_id: str):
-        """Finds a service by its unique ID."""
+    def find_by_id(self, service_id: str) -> Service | None:
+        sql = """
+            SELECT s.id, s.name, s.description, s.price, s.specialty_id, 
+                   sp.name as specialty_name, sp.description as specialty_description
+            FROM services s
+            LEFT JOIN specialties sp ON s.specialty_id = sp.specialty_id
+            WHERE s.id = ?
+        """
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM services WHERE id = ?", (service_id,))
-            row = cursor.fetchone()
+            row = conn.execute(sql, (service_id,)).fetchone()
             if row:
-                return Service(id=row['id'], name=row['name'], description=row['description'], price=row['price'])
+                return self._map_row_to_service(row)
         return None

@@ -124,58 +124,44 @@ class ServiceView:
         print("\n===================================================================")
         input("Pressione Enter para continuar...")
         
-    def obter_novos_dados_para_atualizar(self, servico_antigo: Service, especialidades_disponiveis: list[Specialty]) -> dict:
-        """
-        Pede os novos dados para um serviço, incluindo uma interface
-        melhorada para associar a especialidade.
-        """
+    def obter_dados_servico(self, especialidades: list[Specialty]) -> dict | None:
+        """Coleta do usuário os dados para um novo serviço, incluindo a especialidade."""
         self.limpar_tela()
-        print(f"====== ATUALIZANDO O SERVIÇO '{servico_antigo.name}' ======\n")
-        print("Digite os novos dados. Pressione Enter para manter o valor atual.")
+        print("====== ADICIONAR NOVO SERVIÇO ======\n")
         
-        nome = input(f"Novo nome ({servico_antigo.name}): ")
-        descricao = input(f"Nova descrição ({servico_antigo.description}): ")
-        preco = input(f"Novo preço ({servico_antigo.price:.2f}): ")
-
-        print("\n--- Associar Especialidade ---")
+        nome = input("Nome do serviço: ")
+        if not nome.strip(): return None
         
-        especialidade_atual_nome = servico_antigo.specialty.name if servico_antigo.specialty else "Nenhuma"
-        print(f"Especialidade Atual: {especialidade_atual_nome}\n")
+        descricao = input("Descrição do serviço: ")
+        preco = input("Preço do serviço (ex: 150.00): ")
+        if not preco.strip(): return None
 
-        if especialidades_disponiveis:
-            for i, esp in enumerate(especialidades_disponiveis):
-                print(f"  {i + 1}. {esp.name}")
-        else:
-            print("Nenhuma especialidade cadastrada para associar.")
+        print("\n--- Associar a uma Especialidade (opcional) ---")
+        for i, esp in enumerate(especialidades):
+            print(f"  {i + 1}. {esp.name}")
+        print("  0. Nenhuma / Deixar em branco")
 
-        print("\nOpções:")
-        print("  - Digite um número para TROCAR a especialidade.")
-        print("  - Digite '0' para REMOVER a especialidade atual.")
-        print("  - Pressione [Enter] para MANTER a especialidade atual.")
-        
-        nova_especialidade = servico_antigo.specialty 
+        especialidade_selecionada = None
         while True:
-            escolha_str = input("\nEscolha a nova especialidade: ")
-            
-            if not escolha_str: 
-                break 
-
             try:
+                escolha_str = input("\nEscolha a especialidade: ")
+                if not escolha_str: 
+                    break
+                
                 escolha = int(escolha_str)
                 if escolha == 0:
-                    nova_especialidade = None 
                     break
-                elif 1 <= escolha <= len(especialidades_disponiveis):
-                    nova_especialidade = especialidades_disponiveis[escolha - 1] 
+                elif 1 <= escolha <= len(especialidades):
+                    especialidade_selecionada = especialidades[escolha - 1]
                     break
                 else:
-                    self.exibir_mensagem("Opção de especialidade inválida.", sucesso=False)
+                    print("Opção inválida.")
             except ValueError:
-                self.exibir_mensagem("Por favor, digite um número válido.", sucesso=False)
-
+                print("Entrada inválida. Digite um número.")
+        
         return {
-            "nome": nome.strip() if nome.strip() else servico_antigo.name,
-            "descricao": descricao.strip() if descricao.strip() else servico_antigo.description,
-            "preco": preco.strip() if preco.strip() else servico_antigo.price,
-            "especialidade": nova_especialidade 
+            "nome": nome, 
+            "descricao": descricao, 
+            "preco": preco,
+            "specialty": especialidade_selecionada 
         }

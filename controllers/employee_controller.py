@@ -83,7 +83,7 @@ class EmployeeController:
             return
 
         if self.view.confirmar_exclusao(funcionario_selecionado.name):
-            try: # << CORREÇÃO: Adicionando try/except para robustez
+            try: 
                 if self.employee_dao.delete(funcionario_selecionado.id):
                     self.view.exibir_mensagem("Funcionário deletado com sucesso!")
                 else:

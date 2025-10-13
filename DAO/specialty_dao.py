@@ -12,35 +12,27 @@ class SpecialtySqliteDAO:
         return sqlite3.connect(self.db_path)
 
     def create(self, specialty: Specialty) -> Specialty:
-        """Saves a new specialty to the database."""
         with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
+            conn.execute(
                 "INSERT INTO specialties (specialty_id, name, description) VALUES (?, ?, ?)",
                 (specialty.id, specialty.name, specialty.description) 
             )
             conn.commit()
         return specialty
 
-    def find_by_id(self, specialty_id: str):
-        """Finds a specialty by its unique ID."""
+    def find_by_id(self, specialty_id: str) -> Specialty | None:
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM specialties WHERE specialty_id = ?", (specialty_id,))
-            row = cursor.fetchone()
+            row = conn.execute("SELECT * FROM specialties WHERE specialty_id = ?", (specialty_id,)).fetchone()
             if row:
                 return Specialty(id=row['specialty_id'], name=row['name'], description=row['description'])
         return None
 
-    def find_all(self):
-        """Returns a list of all specialties."""
+    def find_all(self) -> list[Specialty]:
         specialties = []
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM specialties")
-            rows = cursor.fetchall()
+            rows = conn.execute("SELECT * FROM specialties").fetchall()
             for row in rows:
                 specialties.append(Specialty(id=row['specialty_id'], name=row['name'], description=row['description']))
         return specialties

@@ -32,17 +32,21 @@ class ServiceController:
         self.view.exibir_lista_servicos(servicos)
 
     def _adicionar(self):
-        dados = self.view.obter_dados_servico()
-        if not dados: 
-            return
-
         try:
+            especialidades = self.specialty_dao.find_all()
+            
+            dados = self.view.obter_dados_servico(especialidades)
+            if not dados:
+                self.view.exibir_mensagem("Criação de serviço cancelada.", sucesso=False)
+                return
+
             preco = float(dados.get("preco").replace(',', '.'))
             
             novo_servico = Service(
                 name=dados.get("nome"),
                 description=dados.get("descricao"),
-                price=preco
+                price=preco,
+                specialty=dados.get("specialty") 
             )
             self.dao.create(novo_servico)
             self.view.exibir_mensagem("Serviço adicionado com sucesso!")
@@ -51,6 +55,7 @@ class ServiceController:
             self.view.exibir_mensagem(f"Erro de validação: {e}", sucesso=False)
         except Exception as e:
             self.view.exibir_mensagem(f"Não foi possível adicionar o serviço: {e}", sucesso=False)
+
 
     def _atualizar(self):
         servicos = self.dao.find_all()
