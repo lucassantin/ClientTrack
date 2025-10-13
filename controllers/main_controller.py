@@ -1,32 +1,43 @@
-
 from views.main_view import MainView
-from controllers.gerenciamento_controller import GerenciamentoController
-from controllers.user_controller import UserController
+
+from controllers.payment_controller import PaymentController
+from controllers.service_controller import ServiceController
+from controllers.especiality_controller import EspecialityController
+from controllers.appointment_controller import AppointmentController
+from controllers.client_controller import ClientController
+from controllers.employee_controller import EmployeeController
 
 class MainController:
+    """
+    O Controller principal e unificado da aplicação.
+    Gerencia a navegação e delega as ações para os controllers especializados.
+    """
     def __init__(self):
         self.main_view = MainView()
-        self.gerenciamento_controller = GerenciamentoController()
-        self.user_controller = UserController()
+        
+        self.payment_controller = PaymentController()
+        self.service_controller = ServiceController()
+        self.especiality_controller = EspecialityController()
+        self.appointment_controller = AppointmentController()
+        self.client_controller = ClientController()
+        self.employee_controller = EmployeeController()
 
     def iniciar(self):
-        try:
-            while True:
-                self.main_view.limpar_tela()
-                self.main_view.exibir_menu()
-                command = self.main_view.obter_escolha()
+        """Inicia o loop principal da aplicação com o menu unificado."""
+        while True:
+            self.main_view.limpar_tela()
+            self.main_view.exibir_menu()
+            escolha = self.main_view.obter_escolha()
 
-                if command == "1":
-                    self.gerenciamento_controller.iniciar()
-                
-                elif command == "2":
-                    self.user_controller.iniciar()
-
-                elif command == "0":
+            match escolha:
+                case '1': self.payment_controller.gerenciar()
+                case '2': self.service_controller.iniciar()
+                case '3': self.especiality_controller.iniciar()
+                case '4': self.appointment_controller.iniciar()
+                case '5': self.client_controller.iniciar()
+                case '6': self.employee_controller.iniciar()
+                case '0':
+                    print("\nSaindo do sistema. Até logo!")
                     break 
-
-                else:
-                    self.main_view.exibir_mensagem("Opção inválida, tente novamente.")
-        
-        except KeyboardInterrupt:
-            return self.main_view.exibir_mensagem(msg="Programa encerrado pelo usuário.")
+                case _:
+                    self.main_view.exibir_mensagem("Opção inválida, tente novamente.", sucesso=False)
