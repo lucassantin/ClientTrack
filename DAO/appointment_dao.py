@@ -102,3 +102,65 @@ class AppointmentSqliteDAO:
             )
             conn.commit()
         return self.find_by_id(appointment.id)
+    
+    def get_most_used_services(self, limit: int = 5) -> list[dict]:
+        """Retorna os serviços mais agendados."""
+        sql = """
+            SELECT s.name, COUNT(a.service_id) as total
+            FROM appointments a
+            JOIN services s ON a.service_id = s.id
+            GROUP BY s.name
+            ORDER BY total DESC
+            LIMIT ?
+        """
+        with self._get_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            return conn.execute(sql, (limit,)).fetchall()
+
+    def get_most_frequent_clients(self, limit: int = 5) -> list[dict]:
+        """Retorna os clientes com mais agendamentos."""
+        sql = """
+            SELECT u.name, COUNT(a.client_id) as total
+            FROM appointments a
+            JOIN users u ON a.client_id = u.id
+            GROUP BY u.name
+            ORDER BY total DESC
+            LIMIT ?
+        """
+        with self._get_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            return conn.execute(sql, (limit,)).fetchall()
+
+    def get_busiest_employees(self, limit: int = 5) -> list[dict]:
+        """Retorna os funcionários com mais atendimentos."""
+        sql = """
+            SELECT u.name, COUNT(a.employee_id) as total
+            FROM appointments a
+            JOIN users u ON a.employee_id = u.id
+            GROUP BY u.name
+            ORDER BY total DESC
+            LIMIT ?
+        """
+        with self._get_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            return conn.execute(sql, (limit,)).fetchall()
+
+    def get_inactive_clients(self) -> list[dict]:
+        """
+        Retorna clientes que não agendam há algum tempo, mostrando o último agendamento.
+        """
+        sql = """
+            SELECT 
+                u.name,
+                u.contact,
+                MAX(a.appointment_date) as last_appointment,
+                CAST(julianday('now') - julianday(MAX(a.appointment_date)) AS INTEGER) as days_since_last
+            FROM users u
+            JOIN clients c ON u.id = c.id
+            LEFT JOIN appointments a ON u.id = a.client_id
+            GROUP BY u.id
+            ORDER BY days_since_last DESC
+        """
+        with self._get_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            return conn.execute(sql).fetchall()

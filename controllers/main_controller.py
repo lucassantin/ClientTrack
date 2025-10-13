@@ -6,6 +6,7 @@ from controllers.especiality_controller import EspecialityController
 from controllers.appointment_controller import AppointmentController
 from controllers.client_controller import ClientController
 from controllers.employee_controller import EmployeeController
+from controllers.report_controller import ReportController
 
 class MainController:
     """
@@ -21,6 +22,7 @@ class MainController:
         self.appointment_controller = AppointmentController()
         self.client_controller = ClientController()
         self.employee_controller = EmployeeController()
+        self.report_controller = ReportController()
 
     def iniciar(self):
         """Inicia o loop principal da aplicação com o menu unificado."""
@@ -36,6 +38,7 @@ class MainController:
                 case '4': self.appointment_controller.iniciar()
                 case '5': self.client_controller.iniciar()
                 case '6': self.employee_controller.iniciar()
+                case '7': self.report_controller.iniciar()
                 case '0':
                     print("\nSaindo do sistema. Até logo!")
                     break 

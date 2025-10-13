@@ -18,6 +18,9 @@ class MainView:
         print("  5. Gerenciar Clientes")
         print("  6. Gerenciar Funcionários")
         print("\n----------------------------------------")
+        print("\n--- Análise ---")
+        print("  7. Gerar Relatórios")
+        print("\n----------------------------------------")
         print("  0. Sair do sistema")
         print("\n========================================")
 
