@@ -1,12 +1,15 @@
 # ClientTrack
 
-run the following command to generate your venv folder
-
-python -m venv venv
-
 to clean database
 
 Bash
 ```
 del clienttrack.db
+```
+
+to run the project run in the root folder
+
+Bash
+```
+python main.pý
 ```
