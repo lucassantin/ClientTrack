@@ -27,9 +27,7 @@ class MainController:
     def iniciar(self):
         """Inicia o loop principal da aplicação com o menu unificado."""
         while True:
-            self.main_view.limpar_tela()
-            self.main_view.exibir_menu()
-            escolha = self.main_view.obter_escolha()
+            escolha = self.main_view.exibir_menu()
 
             match escolha:
                 case '1': self.payment_controller.gerenciar()

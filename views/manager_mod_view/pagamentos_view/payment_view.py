@@ -1,82 +1,117 @@
-import os
+import FreeSimpleGUI as sg
 from models.payment_type import PaymentType
 
 class PaymentView:
-    def limpar_tela(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+    def __init__(self):
+        sg.theme('DarkBlue')
 
     def exibir_menu_gerenciamento(self) -> str:
-        self.limpar_tela()
-        print("====== GERENCIAR TIPOS DE PAGAMENTO ======\n")
-        print("  1. Listar todos os tipos")
-        print("  2. Adicionar novo tipo")
-        print("  3. Atualizar um tipo existente")
-        print("  4. Deletar um tipo")
-        print("\n  0. Voltar ao menu anterior")
-        print("\n==========================================")
-        return input("Escolha uma opção: ")
+        """Exibe o menu principal de gerenciamento de Tipos de Pagamento."""
+        layout = [
+            [sg.Text("GERENCIAR TIPOS DE PAGAMENTO", font=("Helvetica", 16), justification='center', expand_x=True)],
+            [sg.Button("Listar todos os tipos", key='1', size=(30, 2))],
+            [sg.Button("Adicionar novo tipo", key='2', size=(30, 2))],
+            [sg.Button("Atualizar um tipo existente", key='3', size=(30, 2))],
+            [sg.Button("Deletar um tipo", key='4', size=(30, 2))],
+            [sg.Button("Voltar", key='0', size=(15, 1), button_color=('white', 'firebrick'), pad=(0, 20))]
+        ]
+        
+        window = sg.Window("Gerenciar Tipos de Pagamento", layout, element_justification='c')
+        
+        event, values = window.read()
+        window.close()
+        
+        if event == sg.WIN_CLOSED:
+            return '0'
+        return event
 
-    def obter_dados_tipo_pagamento(self) -> dict:
-        self.limpar_tela()
-        print("====== ADICIONAR NOVO TIPO DE PAGAMENTO ======\n")
-        print("(Deixe o nome em branco e pressione Enter para cancelar)\n")
-        nome = input("Nome (ex: Cartão de Crédito, Dinheiro): ")
+    def obter_dados_tipo_pagamento(self) -> dict | None:
+        """Abre um popup para o usuário digitar o nome do novo tipo."""
+        nome = sg.popup_get_text(
+            "Digite o nome do novo tipo de pagamento (ex: Pix, Dinheiro):", 
+            title="Adicionar Novo Tipo"
+        )
+        
+        if nome is None: 
+            return None
+        
         return {"nome": nome}
 
-    def exibir_lista_tipos_pagamento(self, tipos: list):
-        self.limpar_tela()
-        print("====== LISTA DE TIPOS DE PAGAMENTO ======\n")
+    def exibir_lista_tipos_pagamento(self, tipos: list[PaymentType]):
+        """Exibe uma janela com uma tabela de todos os tipos de pagamento."""
         if not tipos:
-            print("Nenhum tipo de pagamento cadastrado.")
-        else:
-            for i, tipo in enumerate(tipos):
-                print(f"  {i + 1}. {tipo.name} (ID: {tipo.id})")
-        print("\n=========================================")
-        input("Pressione Enter para continuar...")
+            sg.popup("Nenhum tipo de pagamento cadastrado.")
+            return
+
+        dados_tabela = [[tipo.name, tipo.id] for tipo in tipos]
+        cabecalho = ["Nome", "ID do Banco de Dados"]
         
-    def obter_escolha_tipo(self, tipos: list, acao: str) -> PaymentType | None:
-        """Pede ao usuário para escolher um tipo da lista para uma ação."""
-        self.limpar_tela()
-        print(f"====== SELECIONE UM TIPO PARA {acao.upper()} ======\n")
+        layout = [
+            [sg.Text("LISTA DE TIPOS DE PAGAMENTO", font=("Helvetica", 14))],
+            [sg.Table(values=dados_tabela, headings=cabecalho, 
+                      auto_size_columns=False, col_widths=[25, 35],
+                      justification='left', num_rows=10, key='-TABLE-')],
+            [sg.Button("Fechar")]
+        ]
+        
+        window = sg.Window("Tipos de Pagamento", layout)
+        window.read()
+        window.close()
+
+    def obter_escolha_tipo(self, tipos: list[PaymentType], acao: str) -> PaymentType | None:
+        """Abre uma janela para o usuário selecionar um tipo de pagamento de uma lista."""
         if not tipos:
-            print("Nenhum tipo de pagamento para selecionar.")
-            input("\nPressione Enter para voltar...")
+            sg.popup_error(f"Nenhum tipo de pagamento para {acao}.")
             return None
             
-        for i, tipo in enumerate(tipos):
-            print(f"  {i + 1}. {tipo.name}")
-        print("\n  0. Cancelar")
-        print("\n================================================")
-
+        nomes_tipos = [tipo.name for tipo in tipos]
+        
+        layout = [
+            [sg.Text(f"Selecione um tipo de pagamento para {acao}:")],
+            [sg.Listbox(values=nomes_tipos, size=(40, 10), key='-LIST-', enable_events=True)],
+            [sg.Button("Selecionar"), sg.Button("Cancelar")]
+        ]
+        
+        window = sg.Window("Selecionar Tipo de Pagamento", layout)
+        
+        escolha = None
         while True:
-            try:
-                escolha = int(input("Digite o número do tipo: "))
-                if 0 <= escolha <= len(tipos):
-                    return None if escolha == 0 else tipos[escolha - 1]
+            event, values = window.read()
+            if event in (sg.WIN_CLOSED, "Cancelar"):
+                break
+            if event == "Selecionar":
+                if values['-LIST-']:
+                    indice = window['-LIST-'].get_indexes()[0]
+                    escolha = tipos[indice] 
+                    break
                 else:
-                    print("Número inválido. Tente novamente.")
-            except ValueError:
-                print("Entrada inválida. Por favor, digite um número.")
+                    sg.popup_error("Por favor, selecione um tipo na lista.")
+        
+        window.close()
+        return escolha
 
-    def obter_novos_dados_para_atualizar(self, tipo_antigo: PaymentType) -> dict:
-        """Pede o novo nome para um tipo de pagamento."""
-        self.limpar_tela()
-        print(f"====== ATUALIZANDO '{tipo_antigo.name}' ======\n")
-        print("(Deixe em branco e pressione Enter para cancelar)\n")
-        novo_nome = input(f"Digite o novo nome para '{tipo_antigo.name}': ")
+    def obter_novos_dados_para_atualizar(self, tipo_antigo: PaymentType) -> dict | None:
+        """Abre um popup para editar o nome de um tipo de pagamento."""
+        novo_nome = sg.popup_get_text(
+            f"Digite o novo nome para '{tipo_antigo.name}':",
+            title="Atualizar Tipo de Pagamento",
+            default_text=tipo_antigo.name
+        )
+        
+        if novo_nome is None:
+            return None
+            
         return {"nome": novo_nome}
 
     def confirmar_exclusao(self, nome_tipo: str) -> bool:
-        """Pede confirmação do usuário antes de deletar."""
-        self.limpar_tela()
-        print(f"====== CONFIRMAR EXCLUSÃO ======\n")
-        confirmacao = input(f"Tem certeza que deseja deletar '{nome_tipo}'? (s/n): ").lower()
-        return confirmacao == 's'
+        """Exibe um popup de confirmação Yes/No."""
+        resposta = sg.popup_yes_no(f"Tem certeza que deseja DELETAR o tipo '{nome_tipo}'?\nEssa ação não pode ser desfeita.", title="Confirmar Exclusão")
+        return resposta == "Yes"
 
     def exibir_mensagem(self, msg: str, sucesso: bool = True):
-        """Exibe uma mensagem de feedback."""
-        self.limpar_tela()
-        print(f"--- {'SUCESSO' if sucesso else 'ERRO'} ---\n")
-        print(msg)
-        print("\n--------------------")
-        input("Pressione Enter para continuar...")
+        """Exibe um popup de mensagem simples."""
+        titulo = "Sucesso" if sucesso else "Erro"
+        if not sucesso:
+            sg.popup_error(msg, title=titulo, keep_on_top=True)
+        else:
+            sg.popup(msg, title=titulo, keep_on_top=True)

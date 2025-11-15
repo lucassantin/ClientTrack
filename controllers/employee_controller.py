@@ -56,7 +56,7 @@ class EmployeeController:
             return
 
         especialidades = self.specialty_dao.find_all()
-        novos_dados = self.view.obter_novos_dados_para_atualizar(funcionario_selecionado, especialidades) 
+        novos_dados = self.view.obter_novos_dados_para_atualizar(funcionario_selecionado, especialidades)
         if not novos_dados:
             return
 

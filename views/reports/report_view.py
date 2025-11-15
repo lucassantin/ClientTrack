@@ -1,54 +1,83 @@
-import os
+import FreeSimpleGUI as sg
 
 class ReportView:
-    def limpar_tela(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+    def __init__(self):
+        sg.theme('DarkBlue')
 
     def exibir_menu_relatorios(self) -> str:
-        self.limpar_tela()
-        print("========== MÓDULO DE RELATÓRIOS ==========\n")
-        print("  1. Serviços mais consumidos")
-        print("  2. Clientes mais frequentes")
-        print("  3. Funcionários com mais atendimentos")
-        print("  4. Clientes inativos (por último agendamento)")
-        print("\n  0. Voltar")
-        print("\n========================================")
-        return input("Escolha um relatório: ")
+        """Exibe o menu principal do módulo de relatórios."""
+        layout = [
+            [sg.Text("MÓDULO DE RELATÓRIOS", font=("Helvetica", 16), justification='center', expand_x=True)],
+            [sg.Button("Serviços mais consumidos", key='1', size=(30, 2))],
+            [sg.Button("Clientes mais frequentes", key='2', size=(30, 2))],
+            [sg.Button("Funcionários com mais atendimentos", key='3', size=(30, 2))],
+            [sg.Button("Clientes inativos", key='4', size=(30, 2))],
+            [sg.Button("Voltar", key='0', size=(15, 1), button_color=('white', 'firebrick'), pad=(0, 20))]
+        ]
+        
+        window = sg.Window("Relatórios", layout, element_justification='c')
+        
+        event, values = window.read()
+        window.close()
+        
+        if event == sg.WIN_CLOSED:
+            return '0'
+        return event
 
     def exibir_relatorio_simples(self, titulo: str, dados: list, coluna_item: str, coluna_total: str):
-        self.limpar_tela()
-        print(f"====== {titulo.upper()} ======\n")
+        """Exibe um popup com uma tabela simples de ranking (ex: Top Serviços)."""
         if not dados:
-            print("Nenhum dado encontrado para este relatório.")
-        else:
-            print(f"{'#':<3} {coluna_item.upper():<30} {coluna_total.upper()}")
-            print("-" * 50)
-            for i, item in enumerate(dados):
-                print(f"{i+1:<3} {item[coluna_item]:<30} {item[coluna_total]}")
+            sg.popup("Nenhum dado encontrado para este relatório.", title=titulo)
+            return
+
+        dados_tabela = []
+        for i, item in enumerate(dados):
+            dados_tabela.append([i + 1, item[coluna_item], item[coluna_total]])
+
+        cabecalho = ["#", coluna_item.upper(), coluna_total.upper()]
         
-        print("\n" + "=" * 50)
-        input("Pressione Enter para continuar...")
+        layout = [
+            [sg.Text(titulo.upper(), font=("Helvetica", 14))],
+            [sg.Table(values=dados_tabela, headings=cabecalho, 
+                      auto_size_columns=False, col_widths=[5, 30, 10],
+                      justification='left', num_rows=15, key='-TABLE-')],
+            [sg.Button("Fechar")]
+        ]
+        
+        window = sg.Window(titulo, layout)
+        window.read()
+        window.close()
 
     def exibir_relatorio_clientes_inativos(self, dados: list):
-        self.limpar_tela()
-        print("====== RELATÓRIO DE CLIENTES INATIVOS ======\n")
+        """Exibe um popup com a tabela de clientes inativos."""
         if not dados:
-            print("Nenhum cliente encontrado.")
-        else:
-            print(f"{'CLIENTE':<25} {'CONTATO':<20} {'ÚLTIMO AGENDAMENTO':<20} {'DIAS SEM AGENDAR'}")
-            print("-" * 90)
-            for item in dados:
-                ultimo_agendamento = item['last_appointment'] or "Nenhum"
-                dias = item['days_since_last'] if item['days_since_last'] is not None else "N/A"
-                print(f"{item['name']:<25} {item['contact']:<20} {ultimo_agendamento:<20} {dias}")
+            sg.popup("Nenhum cliente encontrado.", title="Clientes Inativos")
+            return
+
+        dados_tabela = []
+        for item in dados:
+            ultimo_agendamento = item['last_appointment'] or "Nenhum"
+            dias = item['days_since_last'] if item['days_since_last'] is not None else "N/A"
+            dados_tabela.append([item['name'], item['contact'], ultimo_agendamento, dias])
+
+        cabecalho = ["Cliente", "Contato", "Último Agendamento", "Dias sem Agendar"]
         
-        print("\n" + "=" * 90)
-        input("Pressione Enter para continuar...")
+        layout = [
+            [sg.Text("RELATÓRIO DE CLIENTES INATIVOS", font=("Helvetica", 14))],
+            [sg.Table(values=dados_tabela, headings=cabecalho, 
+                      auto_size_columns=False, col_widths=[25, 20, 20, 15],
+                      justification='left', num_rows=20, key='-TABLE-')],
+            [sg.Button("Fechar")]
+        ]
+        
+        window = sg.Window("Clientes Inativos", layout)
+        window.read()
+        window.close()
 
     def exibir_mensagem(self, msg: str, sucesso: bool = True):
-        """Exibe uma mensagem de feedback."""
-        self.limpar_tela()
-        print(f"--- {'SUCESSO' if sucesso else 'ERRO'} ---\n")
-        print(msg)
-        print("\n--------------------")
-        input("Pressione Enter para continuar...")
+        """Exibe um popup de mensagem simples."""
+        titulo = "Sucesso" if sucesso else "Erro"
+        if not sucesso:
+            sg.popup_error(msg, title=titulo, keep_on_top=True)
+        else:
+            sg.popup(msg, title=titulo, keep_on_top=True)

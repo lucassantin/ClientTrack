@@ -1,5 +1,3 @@
-print("--- CARREGANDO O ARQUIVO DAO/appointment_dao.py (VERSÃO CORRETA COM PRINTS) ---")
-
 import sqlite3
 from models.appointment import Appointment
 from DAO.client_dao import ClientSqliteDAO
@@ -59,9 +57,7 @@ class AppointmentSqliteDAO:
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(sql).fetchall()
-            print("estou aqui")
             for row in rows:
-                print("entrei")
                 appointment_obj = self._map_row_to_appointment(row)
                 if appointment_obj:
                     appointments.append(appointment_obj)
