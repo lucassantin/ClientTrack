@@ -78,25 +78,56 @@ class ServiceView:
         print(msg)
         print("\n--------------------")
         input("Pressione Enter para continuar...")
-
-    def obter_novos_dados_para_atualizar(self, servico_antigo: 'Service') -> dict:
-        """Pede os novos dados para um serviço que está sendo atualizado."""
+    def obter_novos_dados_para_atualizar(self, servico_antigo: Service, especialidades_disponiveis: list[Specialty]) -> dict:
         self.limpar_tela()
         print(f"====== ATUALIZANDO O SERVIÇO '{servico_antigo.name}' ======\n")
         print("Digite os novos dados. Pressione Enter para manter o valor atual.")
-        print("(Deixe o nome em branco para cancelar a operação)\n")
-
+        
         nome = input(f"Novo nome ({servico_antigo.name}): ")
-        if nome == "": 
-            return {} 
-
         descricao = input(f"Nova descrição ({servico_antigo.description}): ")
         preco = input(f"Novo preço ({servico_antigo.price:.2f}): ")
+
+        print("\n--- Associar Especialidade ---")
         
+        especialidade_atual_nome = servico_antigo.specialty.name if servico_antigo.specialty else "Nenhuma"
+        print(f"Especialidade Atual: {especialidade_atual_nome}\n")
+
+        if especialidades_disponiveis:
+            for i, esp in enumerate(especialidades_disponiveis):
+                print(f"  {i + 1}. {esp.name}")
+        else:
+            print("Nenhuma especialidade cadastrada para associar.")
+
+        print("\nOpções:")
+        print("  - Digite um número para TROCAR a especialidade.")
+        print("  - Digite '0' para REMOVER a especialidade atual.")
+        print("  - Pressione [Enter] para MANTER a especialidade atual.")
+        
+        nova_especialidade = servico_antigo.specialty 
+        while True:
+            escolha_str = input("\nEscolha a nova especialidade: ")
+            
+            if not escolha_str: 
+                break 
+
+            try:
+                escolha = int(escolha_str)
+                if escolha == 0:
+                    nova_especialidade = None 
+                    break
+                elif 1 <= escolha <= len(especialidades_disponiveis):
+                    nova_especialidade = especialidades_disponiveis[escolha - 1] 
+                    break
+                else:
+                    print("Opção inválida. Tente novamente.")
+            except ValueError:
+                print("Por favor, digite um número válido.")
+
         return {
-            "nome": nome if nome.strip() else servico_antigo.name,
-            "descricao": descricao if descricao.strip() else servico_antigo.description,
-            "preco": preco if preco.strip() else servico_antigo.price
+            "nome": nome.strip() if nome.strip() else servico_antigo.name,
+            "descricao": descricao.strip() if descricao.strip() else servico_antigo.description,
+            "preco": preco.strip() if preco.strip() else servico_antigo.price,
+            "especialidade": nova_especialidade 
         }
 
     def confirmar_exclusao(self, nome_servico: str) -> bool:

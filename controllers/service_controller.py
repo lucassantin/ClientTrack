@@ -46,7 +46,7 @@ class ServiceController:
                 name=dados.get("nome"),
                 description=dados.get("descricao"),
                 price=preco,
-                specialty=dados.get("specialty") 
+                specialty=dados.get("especialidade") 
             )
             self.dao.create(novo_servico)
             self.view.exibir_mensagem("Serviço adicionado com sucesso!")
@@ -68,7 +68,7 @@ class ServiceController:
             return
 
         especialidades_disponiveis = self.specialty_dao.find_all()
-        novos_dados = self.view.obter_novos_dados_para_atualizar(servico_selecionado, especialidades_disponiveis)
+        novos_dados = self.view.obter_novos_dados_para_atualizar(servico_selecionado, especialidades_disponiveis) 
         
         try:
             servico_selecionado.name = novos_dados.get("nome")
