@@ -31,9 +31,15 @@ class PaymentController:
 
     def _adicionar(self):
         dados = self.view.obter_dados_tipo_pagamento()
+
+        if dados is None:
+            self.view.exibir_mensagem("Criação cancelada.", sucesso=False)
+            return
+
         nome = dados.get("nome")
 
-        if not nome: 
+        if not nome or not nome.strip(): 
+            self.view.exibir_mensagem("O nome não pode estar vazio.", sucesso=False)
             return
 
         try:
