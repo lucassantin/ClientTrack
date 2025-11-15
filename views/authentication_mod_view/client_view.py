@@ -117,7 +117,7 @@ class ClientView:
         
         name = input(f"Novo nome ({cliente_antigo.name}): ")
         contact = input(f"Novo contato ({cliente_antigo.contact}): ")
-        birthDay = input(f"Nova data de nascimento ({cliente_antigo.birthDay or 'N/A'}): ")
+        birthDay = input(f"Nova data de nascimento ({cliente_antigo.birthDay or 'N/A'})(AAAA-MM-DD): ")
 
         print("\n--- Atualizar Dados do Insight ---")
         indice = input(f"Nova meta de índice ({cliente_antigo.insight.indice}): ")
