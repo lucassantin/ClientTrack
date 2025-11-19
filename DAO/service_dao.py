@@ -4,10 +4,10 @@ from models.specialty import Specialty
 
 class ServiceSqliteDAO:
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
 
     def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path) 
+        return sqlite3.connect(self._db_path) 
 
     def create(self, service: Service) -> Service:
         specialty_id = service.specialty.id if service.specialty else None 

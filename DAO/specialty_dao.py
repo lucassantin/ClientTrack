@@ -1,15 +1,16 @@
 import sqlite3
+from DAO.dao import DAO
 from models.specialty import Specialty
 
-class SpecialtySqliteDAO:
+class SpecialtySqliteDAO(DAO):
     """Concrete DAO for storing Specialty objects in a SQLite database."""
 
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Establishes a connection to the SQLite database."""
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, specialty: Specialty) -> Specialty:
         with self._get_connection() as conn:

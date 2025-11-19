@@ -1,20 +1,21 @@
 import sqlite3
+from DAO.dao import DAO
 from models.appointment import Appointment
 from DAO.client_dao import ClientSqliteDAO
 from DAO.service_dao import ServiceSqliteDAO
 from DAO.employee_dao import EmployeeSqliteDAO
 from DAO.payment_dao import PaymentSqliteDAO
 
-class AppointmentSqliteDAO:
+class AppointmentSqliteDAO(DAO):
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
         self.client_dao = ClientSqliteDAO()
         self.service_dao = ServiceSqliteDAO()
         self.employee_dao = EmployeeSqliteDAO()
         self.payment_dao = PaymentSqliteDAO()
 
     def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, appointment: Appointment) -> Appointment:
         with self._get_connection() as conn:

@@ -2,17 +2,18 @@ import sqlite3
 from models.client import Client
 from models.insight import Insight
 from DAO.user_dao import UserSqliteDAO
+from DAO.dao import DAO
 
-class ClientSqliteDAO:
+class ClientSqliteDAO(DAO):
     """DAO para objetos Client, seguindo o padrão de Composição para Insight."""
 
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
         self.user_dao = UserSqliteDAO()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Estabelece uma conexão com o banco de dados."""
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, client: Client) -> Client:
         """Salva um novo cliente nas tabelas 'users' e 'clients'."""

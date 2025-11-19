@@ -5,10 +5,10 @@ class UserSqliteDAO:
     """DAO para o modelo base User."""
 
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
 
     def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, user: User) -> User:
         with self._get_connection() as conn:

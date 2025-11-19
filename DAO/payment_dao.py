@@ -2,17 +2,17 @@ import sqlite3
 from models.payment import Payment
 from models.payment_type import PaymentType
 from DAO.payment_type_dao import PaymentTypeSqliteDAO
-
-class PaymentSqliteDAO:
+from DAO.dao import DAO
+class PaymentSqliteDAO(DAO):
     """DAO para objetos Payment, lida com a tabela payments."""
 
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
         self.payment_type_dao = PaymentTypeSqliteDAO()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Estabelece uma conexão com o banco de dados."""
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, payment: Payment) -> Payment:
         """Salva um novo pagamento no banco de dados."""

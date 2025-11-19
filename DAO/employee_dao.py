@@ -1,19 +1,20 @@
 import sqlite3
+from DAO.dao import DAO
 from models.employee import Employee
 from models.specialty import Specialty
 from DAO.user_dao import UserSqliteDAO
 from DAO.specialty_dao import SpecialtySqliteDAO
 
-class EmployeeSqliteDAO:
+class EmployeeSqliteDAO(DAO):
     """DAO para objetos Employee, lida com as tabelas users e employees."""
 
     def __init__(self):
-        self.db_path = "clienttrack.db"
+        super().__init__()
         self.user_dao = UserSqliteDAO()
         self.specialty_dao = SpecialtySqliteDAO()
 
     def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(self._db_path)
 
     def create(self, employee: Employee) -> Employee:
         self.user_dao.create(employee)
