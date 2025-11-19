@@ -26,7 +26,7 @@ class ClientController:
         self.view.exibir_lista_clientes(clientes)
 
     def _adicionar(self):
-        dados = self.view.obter_dados_cliente()
+        dados = self.view.obter_dados_cliente() 
         if not dados:
             return
 

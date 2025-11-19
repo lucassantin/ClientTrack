@@ -31,7 +31,6 @@ class AppointmentView:
 
     def _selecionar_objeto_popup(self, titulo: str, texto: str, lista_objetos: list) -> object | None:
         """Função auxiliar genérica para criar um popup de seleção."""
-        # Cria uma lista de strings para exibir, usando o atributo .name
         nomes = [obj.name for obj in lista_objetos]
         
         layout = [
@@ -61,32 +60,26 @@ class AppointmentView:
     def obter_dados_agendamento(self, clientes: list[Client], funcionarios: list[Employee], 
                                 servicos: list[Service], tipos_pagamento: list[PaymentType]) -> dict | None:
         
-        # --- Passo 1: Selecionar Cliente ---
         cliente_selecionado = self._selecionar_objeto_popup(
             "Selecionar Cliente", "Passo 1: Selecione o Cliente", clientes
         )
         if not cliente_selecionado: return None
 
-        # --- Passo 2: Selecionar Serviço ---
         servico_selecionado = self._selecionar_objeto_popup(
             "Selecionar Serviço", f"Passo 2: Selecione o Serviço para {cliente_selecionado.name}", servicos
         )
         if not servico_selecionado: return None
 
-        # --- Passo 3: Selecionar Funcionário ---
         funcionario_selecionado = self._selecionar_objeto_popup(
             "Selecionar Funcionário", f"Passo 3: Selecione o Funcionário", funcionarios
         )
         if not funcionario_selecionado: return None
 
-        # --- Passo 4: Selecionar Tipo de Pagamento ---
         tipo_pagamento_selecionado = self._selecionar_objeto_popup(
             "Selecionar Pagamento", f"Passo 4: Selecione o Tipo de Pagamento", tipos_pagamento
         )
         if not tipo_pagamento_selecionado: return None
 
-        # --- PASSO 5: CORREÇÃO APLICADA AQUI ---
-        # O argumento 'tooltip' foi removido e a dica de formato foi movida para a mensagem principal.
         data_hora = sg.popup_get_text(
             "Digite a data e hora do agendamento (AAAA-MM-DD HH:MM):", 
             title="Passo 5: Data e Hora"
