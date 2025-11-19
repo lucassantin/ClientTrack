@@ -1,58 +1,51 @@
-import sqlite3
-from DAO.dao import DAO
 from models.specialty import Specialty
+from DAO.dao import DAO
 
 class SpecialtySqliteDAO(DAO):
-    """Concrete DAO for storing Specialty objects in a SQLite database."""
+    """DAO para objetos Specialty, herdando funcionalidades genéricas."""
 
     def __init__(self):
         super().__init__()
 
-    def _get_connection(self) -> sqlite3.Connection:
-        """Establishes a connection to the SQLite database."""
-        return sqlite3.connect(self._db_path)
-
     def create(self, specialty: Specialty) -> Specialty:
-        with self._get_connection() as conn:
-            conn.execute(
-                "INSERT INTO specialties (specialty_id, name, description) VALUES (?, ?, ?)",
-                (specialty.id, specialty.name, specialty.description) 
-            )
-            conn.commit()
+        """Salva uma nova especialidade usando o método genérico."""
+        data = {
+            "id": specialty.id,
+            "name": specialty.name,
+            "description": specialty.description
+        }
+        self._insert("specialties", data)
         return specialty
 
+    def _map_row_to_specialty(self, row) -> Specialty:
+        """Helper para converter linha do banco (ou dict) em objeto."""
+        return Specialty(
+            id=row['id'], 
+            name=row['name'], 
+            description=row['description']
+        )
+
     def find_by_id(self, specialty_id: str) -> Specialty | None:
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            row = conn.execute("SELECT * FROM specialties WHERE specialty_id = ?", (specialty_id,)).fetchone()
-            if row:
-                return Specialty(id=row['specialty_id'], name=row['name'], description=row['description'])
+        """Busca pelo ID usando o método genérico."""
+        row = self._fetch_by_id("specialties", specialty_id)
+        if row:
+            return self._map_row_to_specialty(row)
         return None
 
     def find_all(self) -> list[Specialty]:
-        specialties = []
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            rows = conn.execute("SELECT * FROM specialties").fetchall()
-            for row in rows:
-                specialties.append(Specialty(id=row['specialty_id'], name=row['name'], description=row['description']))
-        return specialties
+        """Busca todos os registros."""
+        rows = self._fetch_all("specialties")
+        return [self._map_row_to_specialty(row) for row in rows]
 
-    def update(self, specialty: Specialty):
-        """Updates an existing specialty."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "UPDATE specialties SET name = ?, description = ? WHERE specialty_id = ?",
-                (specialty.name, specialty.description, specialty.id)
-            )
-            conn.commit()
-        return self.find_by_id(specialty.id)
+    def update(self, specialty: Specialty) -> Specialty:
+        """Atualiza os dados usando o método genérico."""
+        data = {
+            "name": specialty.name,
+            "description": specialty.description
+        }
+        self._update("specialties", specialty.id, data)
+        return specialty
 
     def delete(self, specialty_id: str) -> bool:
-        """Deletes a specialty by its ID."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM specialties WHERE specialty_id = ?", (specialty_id,))
-            conn.commit()
-            return cursor.rowcount > 0
+        """Deleta pelo ID usando o método genérico."""
+        return self._delete("specialties", specialty_id)

@@ -1,27 +1,91 @@
+import sqlite3
+from typing import Any, Dict, List, Optional
+
+
 class DAO:
     def __init__(self):
-        self.__data = {}
+        self.__cache = {}
         self._db_path = "clienttrack.db"
 
-    def create(self, key, value):
-        if key in self.__data:
-            raise KeyError(f"Key {key} already exists.")
-        self.__data[key] = value
+    def _get_connection(self) -> sqlite3.Connection:
+        return sqlite3.connect(self._db_path)
+    def _insert(self, table_name: str, data: Dict[str, Any]) -> str:
+        """
+        Gera dinamicamente: INSERT INTO table (col1, col2) VALUES (?, ?)
+        Retorna o ID do objeto inserido (útil se o ID não for passado).
+        """
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join(['?'] * len(data))
+        values = list(data.values())
+        
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
-    def read(self, key):
-        if key not in self.__data:
-            raise KeyError(f"Key {key} not found.")
-        return self.__data[key]
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, values)
+            conn.commit()
+            
+            if 'id' in data:
+                self._cache[data['id']] = data
+                return data['id']
+            return str(cursor.lastrowid)
 
-    def update(self, key, value):
-        if key not in self.__data:
-            raise KeyError(f"Key {key} not found.")
-        self.__data[key] = value
+    def _fetch_by_id(self, table_name: str, id_value: Any) -> Optional[sqlite3.Row]:
+        """Busca genérica pelo ID (com Cache)."""
+        
+        if id_value in self._cache:
+            return self._cache[id_value] 
 
-    def delete(self, key):
-        if key not in self.__data:
-            raise KeyError(f"Key {key} not found.")
-        del self.__data[key]
+        sql = f"SELECT * FROM {table_name} WHERE id = ?"
+        
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, (id_value,))
+            row = cursor.fetchone()
+            
+            if row:
+                data_dict = dict(row) 
+                self._cache[id_value] = data_dict
+                return row
+        return None
 
-    def list_all(self):
-        return self.__data.items()
+    def _fetch_all(self, table_name: str) -> List[sqlite3.Row]:
+        """Busca todos os registros de uma tabela."""
+        sql = f"SELECT * FROM {table_name}"
+        
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            return cursor.fetchall()
+
+    def _update(self, table_name: str, id_value: Any, data: Dict[str, Any]) -> None:
+        """
+        Gera dinamicamente: UPDATE table SET col1=?, col2=? WHERE id=?
+        """
+        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
+        values = list(data.values())
+        values.append(id_value)
+        
+        sql = f"UPDATE {table_name} SET {set_clause} WHERE id = ?"
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, values)
+            conn.commit()
+
+        if id_value in self._cache:
+             self._cache[id_value].update(data)
+
+    def _delete(self, table_name: str, id_value: Any) -> bool:
+        sql = f"DELETE FROM {table_name} WHERE id = ?"
+        
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, (id_value,))
+            conn.commit()
+            deleted = cursor.rowcount > 0
+        
+        if deleted and id_value in self._cache:
+            del self._cache[id_value]
+            
+        return deleted

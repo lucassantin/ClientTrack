@@ -1,61 +1,54 @@
-import sqlite3
-from DAO.dao import DAO
 from models.insight import Insight
+from DAO.dao import DAO
 
 class InsightSqliteDAO(DAO):
-    """Concrete DAO for storing Insight objects in a SQLite database."""
+    """Concrete DAO for storing Insight objects, herdando funcionalidades genéricas."""
 
     def __init__(self):
         super().__init__()
 
-    def _get_connection(self) -> sqlite3.Connection:
-        """Establishes a connection to the SQLite database."""
-        return sqlite3.connect(self._db_path)
-
     def create(self, insight: Insight) -> Insight:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO insights (id, indice, recommendation) VALUES (?, ?, ?)",
-                (insight.id, insight.indice, insight.recommendation)
-            )
-            conn.commit()
+        """Salva um novo insight usando o método genérico."""
+        data = {
+            "id": insight.id,
+            "indice": insight.indice,
+            "recommendation": insight.recommendation
+        }
+        self._insert("insights", data)
         return insight
 
-    def find_by_id(self, insight_id: str):
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM insights WHERE id = ?", (insight_id,))
-            row = cursor.fetchone()
-            if row:
-                return Insight(id=row['id'], indice=row['indice'], recommendation=row['recommendation'])
+    def _map_row_to_insight(self, row) -> Insight:
+        """Helper para converter linha do banco em objeto."""
+        return Insight(
+            id=row['id'], 
+            indice=row['indice'], 
+            recommendation=row['recommendation']
+        )
+
+    def find_by_id(self, insight_id: str) -> Insight | None:
+        """Busca pelo ID usando o método genérico."""
+        row = self._fetch_by_id("insights", insight_id)
+        
+        if row:
+            return self._map_row_to_insight(row)
         return None
 
-    def find_all(self):
-        insights = []
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM insights")
-            rows = cursor.fetchall()
-            for row in rows:
-                insights.append(Insight(id=row['id'], indice=row['indice'], recommendation=row['recommendation']))
-        return insights
+    def find_all(self) -> list[Insight]:
+        """Busca todos os registros."""
+        rows = self._fetch_all("insights")
+        
+        return [self._map_row_to_insight(row) for row in rows]
 
-    def update(self, insight: Insight):
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "UPDATE insights SET indice = ?, recommendation = ? WHERE id = ?",
-                (insight.indice, insight.recommendation, insight.id)
-            )
-            conn.commit()
-        return self.find_by_id(insight.id)
+    def update(self, insight: Insight) -> Insight:
+        """Atualiza os dados usando o método genérico."""
+        data = {
+            "indice": insight.indice,
+            "recommendation": insight.recommendation
+        }
+        self._update("insights", insight.id, data)
+        
+        return insight
 
     def delete(self, insight_id: str) -> bool:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM insights WHERE id = ?", (insight_id,))
-            conn.commit()
-            return cursor.rowcount > 0
+        """Deleta pelo ID usando o método genérico."""
+        return self._delete("insights", insight_id)

@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS services (
     description TEXT,
     specialty_id TEXT,
     price REAL,
-    FOREIGN KEY (specialty_id) REFERENCES specialties(specialty_id) ON DELETE SET NULL
+    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE SET NULL
 );

@@ -14,30 +14,27 @@ class AppointmentSqliteDAO(DAO):
         self.employee_dao = EmployeeSqliteDAO()
         self.payment_dao = PaymentSqliteDAO()
 
-    def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self._db_path)
-
     def create(self, appointment: Appointment) -> Appointment:
-        with self._get_connection() as conn:
-            conn.execute(
-                """INSERT INTO appointments (id, created_at, appointment_date, client_id, service_id, employee_id, payment_id)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (appointment.id, appointment.created_at, appointment.appointment_date,
-                 appointment.client.id, appointment.service.id, 
-                 appointment.employee.id, appointment.payment.id if appointment.payment else None)
-            )
-            conn.commit()
+        data = {
+            "id": appointment.id,
+            "created_at": appointment.created_at,
+            "appointment_date": appointment.appointment_date,
+            "client_id": appointment.client.id,
+            "service_id": appointment.service.id,
+            "employee_id": appointment.employee.id,
+            "payment_id": appointment.payment.id if appointment.payment else None
+        }
+        self._insert("appointments", data)
         return appointment
 
     def _map_row_to_appointment(self, row: sqlite3.Row) -> Appointment | None:
-        """Cria um objeto Appointment a partir de uma linha do DB (com JOINs)."""
         try:
             client = self.client_dao.find_by_id(row['client_id'])
             service = self.service_dao.find_by_id(row['service_id'])
             employee = self.employee_dao.find_by_id(row['employee_id'])
             payment = self.payment_dao.find_by_id(row['payment_id']) if row['payment_id'] else None
 
-            if not all([client, service, employee]): 
+            if not all([client, service, employee]):
                 return None 
 
             return Appointment(
@@ -54,6 +51,7 @@ class AppointmentSqliteDAO(DAO):
 
     def find_all(self) -> list[Appointment]:
         sql = "SELECT * FROM appointments ORDER BY appointment_date DESC"
+        
         appointments = []
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
@@ -65,43 +63,25 @@ class AppointmentSqliteDAO(DAO):
         return appointments
 
     def find_by_id(self, appointment_id: str) -> Appointment | None:
-        sql = "SELECT * FROM appointments WHERE id = ?"
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            row = conn.execute(sql, (appointment_id,)).fetchone()
-            if row:
-                return self._map_row_to_appointment(row)
+        row = self._fetch_by_id("appointments", appointment_id)
+        if row:
+            return self._map_row_to_appointment(row)
         return None
 
+    def update(self, appointment: Appointment) -> Appointment:
+        data = {
+            "appointment_date": appointment.appointment_date,
+            "service_id": appointment.service.id,
+            "employee_id": appointment.employee.id,
+            "payment_id": appointment.payment.id if appointment.payment else None
+        }
+        self._update("appointments", appointment.id, data)
+        return appointment
+
     def delete(self, appointment_id: str) -> bool:
-        with self._get_connection() as conn:
-            rows_affected = conn.execute("DELETE FROM appointments WHERE id = ?", (appointment_id,)).rowcount
-            conn.commit()
-            return rows_affected > 0
-        
-    def update(self, appointment: Appointment):
-        """Updates an existing appointment."""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                UPDATE appointments
-                SET appointment_date = ?, service_id = ?, employee_id = ?, payment_id = ?
-                WHERE id = ?
-                """,
-                (
-                    appointment.appointment_date,
-                    appointment.service.id,
-                    appointment.employee.id,
-                    appointment.payment.id,
-                    appointment.id
-                )
-            )
-            conn.commit()
-        return self.find_by_id(appointment.id)
-    
+        return self._delete("appointments", appointment_id)
+
     def get_most_used_services(self, limit: int = 5) -> list[dict]:
-        """Retorna os serviços mais agendados."""
         sql = """
             SELECT s.name, COUNT(a.service_id) as total
             FROM appointments a
@@ -115,7 +95,6 @@ class AppointmentSqliteDAO(DAO):
             return conn.execute(sql, (limit,)).fetchall()
 
     def get_most_frequent_clients(self, limit: int = 5) -> list[dict]:
-        """Retorna os clientes com mais agendamentos."""
         sql = """
             SELECT u.name, COUNT(a.client_id) as total
             FROM appointments a
@@ -129,7 +108,6 @@ class AppointmentSqliteDAO(DAO):
             return conn.execute(sql, (limit,)).fetchall()
 
     def get_busiest_employees(self, limit: int = 5) -> list[dict]:
-        """Retorna os funcionários com mais atendimentos."""
         sql = """
             SELECT u.name, COUNT(a.employee_id) as total
             FROM appointments a
@@ -143,9 +121,6 @@ class AppointmentSqliteDAO(DAO):
             return conn.execute(sql, (limit,)).fetchall()
 
     def get_inactive_clients(self) -> list[dict]:
-        """
-        Retorna clientes que não agendam há algum tempo, mostrando o último agendamento.
-        """
         sql = """
             SELECT 
                 u.name,

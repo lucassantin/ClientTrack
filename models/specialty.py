@@ -2,12 +2,12 @@ import uuid
 
 class Specialty:
     def __init__(self, name:str, description:str, id:str=None):
-        self.__specialty_id = id if id else str(uuid.uuid4())
+        self.__id = id if id else str(uuid.uuid4())
         self.__name = None
         self.__description = None
 
         if isinstance(id, str):
-            self.__specialty_id = id
+            self.__id = id
 
         if isinstance(name, str):
             self.__name = name
@@ -19,12 +19,12 @@ class Specialty:
 
     @property
     def id(self) -> str:
-        return self.__specialty_id
+        return self.__id
 
     @id.setter
     def id(self, id: str):
         if isinstance(id, str):
-            self.__specialty_id = id
+            self.__id = id
 
 
     @property

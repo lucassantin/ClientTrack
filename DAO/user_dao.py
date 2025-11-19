@@ -1,47 +1,40 @@
-import sqlite3
 from models.user import User
+from DAO.dao import DAO
 
-class UserSqliteDAO:
-    """DAO para o modelo base User."""
+class UserSqliteDAO(DAO):
+    """DAO para o modelo base User, herdando funcionalidades genéricas."""
 
     def __init__(self):
         super().__init__()
 
-    def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self._db_path)
-
     def create(self, user: User) -> User:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO users (id, name, contact, registered_at) VALUES (?, ?, ?, ?)",
-                (user.id, user.name, user.contact, user.registered_at)
-            )
-            conn.commit()
+        """Cria um novo usuário no banco de dados."""
+        data = {
+            "id": user.id,
+            "name": user.name,
+            "contact": user.contact,
+            "registered_at": user.registered_at
+        }
+        self._insert("users", data)
         return user
 
     def update(self, user: User) -> User:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "UPDATE users SET name = ?, contact = ? WHERE id = ?",
-                (user.name, user.contact, user.id)
-            )
-            conn.commit()
+        """Atualiza os dados de um usuário existente."""
+        data = {
+            "name": user.name,
+            "contact": user.contact
+        }
+        self._update("users", user.id, data)
         return user
 
     def delete(self, user_id: str) -> bool:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            rows_affected = cursor.execute("DELETE FROM users WHERE id = ?", (user_id,)).rowcount
-            conn.commit()
-            return rows_affected > 0
+        """Deleta um usuário pelo ID."""
+        return self._delete("users", user_id)
 
     def find_by_id(self, user_id: str) -> User | None:
-        with self._get_connection() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            row = cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
-            if row:
-                return User(**row)
+        """Busca um usuário pelo ID."""
+        row = self._fetch_by_id("users", user_id)
+        
+        if row:
+            return User(**row)
         return None
