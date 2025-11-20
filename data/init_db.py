@@ -9,7 +9,6 @@ def initialize_database():
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
-            #print("Running the scripts of schema...")
 
             sql_files = [f for f in os.listdir(SCHEMA_DIR) if f.endswith('.sql')]
             
@@ -18,10 +17,8 @@ def initialize_database():
                 with open(filepath, 'r') as f:
                     sql_script = f.read()
                     cursor.executescript(sql_script) 
-                #print(f" - Script '{sql_file}' executed.")
 
             conn.commit()
-            #print("Data base start with sucess.")
     except sqlite3.Error as e:
         print(f"Error: {e}")
 

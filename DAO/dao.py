@@ -1,19 +1,18 @@
 import sqlite3
 from typing import Any, Dict, List, Optional
 
-
 class DAO:
     def __init__(self):
-        self.__cache = {}
+        self._cache = {} 
         self._db_path = "clienttrack.db"
 
     def _get_connection(self) -> sqlite3.Connection:
-        return sqlite3.connect(self._db_path)
+        """Cria conexão configurada para acessar colunas por nome."""
+        conn = sqlite3.connect(self._db_path)
+        conn.row_factory = sqlite3.Row 
+        return conn
+
     def _insert(self, table_name: str, data: Dict[str, Any]) -> str:
-        """
-        Gera dinamicamente: INSERT INTO table (col1, col2) VALUES (?, ?)
-        Retorna o ID do objeto inserido (útil se o ID não for passado).
-        """
         columns = ', '.join(data.keys())
         placeholders = ', '.join(['?'] * len(data))
         values = list(data.values())
@@ -31,10 +30,6 @@ class DAO:
             return str(cursor.lastrowid)
 
     def _fetch_by_id(self, table_name: str, id_value: Any) -> Optional[sqlite3.Row]:
-        """Busca genérica pelo ID (com Cache)."""
-        
-        if id_value in self._cache:
-            return self._cache[id_value] 
 
         sql = f"SELECT * FROM {table_name} WHERE id = ?"
         
@@ -44,13 +39,10 @@ class DAO:
             row = cursor.fetchone()
             
             if row:
-                data_dict = dict(row) 
-                self._cache[id_value] = data_dict
                 return row
         return None
 
     def _fetch_all(self, table_name: str) -> List[sqlite3.Row]:
-        """Busca todos os registros de uma tabela."""
         sql = f"SELECT * FROM {table_name}"
         
         with self._get_connection() as conn:
@@ -59,9 +51,6 @@ class DAO:
             return cursor.fetchall()
 
     def _update(self, table_name: str, id_value: Any, data: Dict[str, Any]) -> None:
-        """
-        Gera dinamicamente: UPDATE table SET col1=?, col2=? WHERE id=?
-        """
         set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
         values = list(data.values())
         values.append(id_value)
